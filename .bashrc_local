@@ -1,4 +1,5 @@
 set -o vi
+export EDITOR=vim
 
 alias ll='ls -l'
 alias vi='vim'
