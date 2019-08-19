@@ -76,7 +76,7 @@ set foldlevel=99
 " ====================
 " Note: norec - means non-recursive mapping
 "
-let mapleader=","
+let mapleader=" "
 
 " Search
 nnoremap / /\v
