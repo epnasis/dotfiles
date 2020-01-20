@@ -1,0 +1,10 @@
+[alias]
+        s = status
+        ds = diff --staged
+        l = log --all --decorate --oneline --graph
+        d = diff
+        c = commit
+[user]
+        email = pwenda@google.com
+        name = Pawel Wenda
+
