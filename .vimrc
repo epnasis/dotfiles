@@ -23,3 +23,7 @@ nnoremap k gk
 let mapleader=" "
 nnoremap <leader>e :vsp $MYVIMRC<CR>
 
+" allow undo between sessions
+set undofile
+set undodir=~/.vim/undodir
+
