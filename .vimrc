@@ -73,6 +73,22 @@ set autoindent
 " Recognize file types
 filetype plugin indent on
 
+" Python
+au BufNewFile,BufRead *.py
+    \ set tabstop=4
+    \ | set softtabstop=4
+    \ | set shiftwidth=4
+    \ | set textwidth=79
+    \ | set expandtab
+    \ | set autoindent
+    \ | set fileformat=unix
+
+" Web files
+au BufNewFile,BufRead *.js, *.html, *.css
+    \ set tabstop=2
+    \ | set softtabstop=2
+    \ | set shiftwidth=2
+
 " folding - TBC
 set foldmethod=indent
 set foldlevel=99
