@@ -44,6 +44,9 @@ let g:airline#extensions#tabline#enabled = 1
 " Show just the filename
 let g:airline#extensions#tabline#fnamemod = ':t'
 
+" For git gutter
+set updatetime=100
+
 " Wrapping
 set wrap			" wrap by default
 set linebreak		" break full words
