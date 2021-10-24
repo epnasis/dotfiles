@@ -1,5 +1,6 @@
 [alias]
 	s = status
+	a = add
 	ds = diff --staged
 	l = log --all --decorate --oneline --graph
 	d = diff
