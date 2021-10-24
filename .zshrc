@@ -256,7 +256,7 @@ set -o vi
 
 if [ -z "$TMUX" ]; then
     tmux attach || tmux new 
-    exit
+    tmux ls || exit
 fi
 
 #setopt inc_append_history    # save every command before it is executed
