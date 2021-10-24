@@ -254,9 +254,13 @@ fi
 # local
 set -o vi
 
-if [ -z "$TMUX" ]; then
-    tmux attach || tmux new 
-    tmux ls || exit
+
+# Run in tmux unless command run from Kali menu
+if ! ps -f | grep -q "[e]xec-in-shell"; then
+	if [ -z "$TMUX" ]; then
+	    tmux attach || tmux new
+	    tmux ls || exit
+	fi
 fi
 
 #setopt inc_append_history    # save every command before it is executed
