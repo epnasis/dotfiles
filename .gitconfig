@@ -8,3 +8,5 @@
 [user]
 	email = pawel@wenda.eu
 	name = Pawel Wenda
+[core]
+	editor = vim
