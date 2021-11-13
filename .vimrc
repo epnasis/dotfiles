@@ -76,6 +76,9 @@ set autoindent
 " Recognize file types
 filetype plugin indent on
 
+" Copy without line numbers
+set mouse+=a"
+
 " Python
 au BufNewFile,BufRead *.py
     \ set tabstop=4
