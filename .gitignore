@@ -1,9 +1,3 @@
-*
-!.gitignore
-!.tmux.conf
-!.vimrc
-!.bashrc
-!.bashrc_local
-!.gitconfig
-!.zshrc
-!.inputrc
+.git/
+.gitignore
+
