@@ -15,3 +15,12 @@ link .tmux.conf
 link .zshrc
 link .bashrc
 
+# setup .bashrc
+grep -q '~/dotfiles/.bashrc' ~/.bashrc &&
+  echo "[*] Skippping .bashrc - already updated" \
+|| (
+  echo "[+] Updating .bashrc to include ~/dotfiles/.bashrc"
+  echo -e "\n\n# added by ~/dotfiles/install.sh" >> ~/.bashrc
+  echo "[ -f ~/dotfiles/.bashrc ] && . ~/dotfiles/.bashrc" >> ~/.bashrc
+)
+
