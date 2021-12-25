@@ -24,3 +24,12 @@ grep -q '~/dotfiles/.bashrc' ~/.bashrc &&
   echo "[ -f ~/dotfiles/.bashrc ] && . ~/dotfiles/.bashrc" >> ~/.bashrc
 )
 
+# setup .zshrc
+grep -q '~/dotfiles/.bashrc' ~/.zshrc &&
+  echo "[*] Skippping .zshrc - already updated" \
+|| (
+  echo "[+] Updating .zshrc to include ~/dotfiles/.bashrc"
+  echo -e "\n\n# added by ~/dotfiles/install.sh" >> ~/.zshrc
+  echo "[ -f ~/dotfiles/.bashrc ] && . ~/dotfiles/.bashrc" >> ~/.zshrc
+)
+
