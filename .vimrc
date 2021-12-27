@@ -6,8 +6,25 @@ set hidden
 set ignorecase
 set smartcase
 set autoindent
+
+" line numbers
 set rnu
 set nu
+
+" Tabs
+" tabstop         - how many spaces will tab character show up as visually
+" shiftwidth     - how many spaces to shift < or > when you indent - should be
+"                   same as tab stops
+" expandtab     - replace tab character with spaces (as many as tabstop says)
+" smarttab        - <BS> will remove 4 (=tabstop) spaces no just 1
+" softabstop     -
+" autoindent    -
+set listchars=tab:>\ ,extends:>,precedes:<
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set smarttab
+set autoindent
 
 colorscheme slate
 
