@@ -12,24 +12,22 @@ link .gitconfig
 link .inputrc
 link .vimrc
 link .tmux.conf
-link .zshrc
-link .bashrc
 
 # setup .bashrc
-grep -q '~/dotfiles/.bashrc' ~/.bashrc &&
+grep -q '~/dotfiles/.localrc' ~/.bashrc &&
   echo "[*] Skippping .bashrc - already updated" \
 || (
-  echo "[+] Updating .bashrc to include ~/dotfiles/.bashrc"
+  echo "[+] Updating .bashrc to include ~/dotfiles/.localrc"
   echo -e "\n\n# added by ~/dotfiles/install.sh" >> ~/.bashrc
-  echo "[ -f ~/dotfiles/.bashrc ] && . ~/dotfiles/.bashrc" >> ~/.bashrc
+  echo "[ -f ~/dotfiles/.localrc ] && . ~/dotfiles/.localrc" >> ~/.bashrc
 )
 
 # setup .zshrc
-grep -q '~/dotfiles/.bashrc' ~/.zshrc &&
+grep -q '~/dotfiles/.localrc' ~/.zshrc &&
   echo "[*] Skippping .zshrc - already updated" \
 || (
-  echo "[+] Updating .zshrc to include ~/dotfiles/.bashrc"
+  echo "[+] Updating .zshrc to include ~/dotfiles/.localrc"
   echo -e "\n\n# added by ~/dotfiles/install.sh" >> ~/.zshrc
-  echo "[ -f ~/dotfiles/.bashrc ] && . ~/dotfiles/.bashrc" >> ~/.zshrc
+  echo "[ -f ~/dotfiles/.localrc ] && . ~/dotfiles/.localrc" >> ~/.zshrc
 )
 
