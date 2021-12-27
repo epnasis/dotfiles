@@ -13,6 +13,9 @@ alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
 
+# aliases - other
+alias ..='cd ..'
+
 # history 
 HISTFILESIZE=100000
 HISTSIZE=1000000
