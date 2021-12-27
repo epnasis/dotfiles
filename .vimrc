@@ -11,7 +11,15 @@ set autoindent
 set rnu
 set nu
 
-" Tabs
+" leader key
+let mapleader=" "
+nnoremap <leader>e :tabe $MYVIMRC<CR>
+
+" tab
+set showtabline=2 " always show tab bar
+map <leader>t :tabnew<CR> " quickly open a new tab
+
+" Tabs/spaces
 " tabstop         - how many spaces will tab character show up as visually
 " shiftwidth     - how many spaces to shift < or > when you indent - should be
 "                   same as tab stops
@@ -37,8 +45,6 @@ nnoremap <c-l> <c-w>l
 nnoremap j gj
 nnoremap k gk
 
-let mapleader=" "
-nnoremap <leader>e :vsp $MYVIMRC<CR>
 
 " allow undo between sessions
 set undofile
