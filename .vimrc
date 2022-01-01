@@ -6,6 +6,8 @@
 set nu
 set rnu
 
+set language=en_US
+
 " =====================
 " SYSTEM AGNOSTIC SETUP
 " =====================
@@ -78,6 +80,9 @@ filetype plugin indent on
 
 " Copy without line numbers
 set mouse+=a"
+
+" down notes
+au BufRead downh set tw=80
 
 " Python
 au BufNewFile,BufRead *.py
