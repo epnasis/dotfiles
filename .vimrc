@@ -82,7 +82,10 @@ filetype plugin indent on
 set mouse+=a"
 
 " down notes
-au BufRead downh set tw=80 | set scrolloff=5
+au BufRead downh
+    \ set tw=80
+    \ | set formatoptions+=t
+    \ | set scrolloff=5
 
 " Python
 au BufNewFile,BufRead *.py
