@@ -6,7 +6,7 @@
 set nu
 set rnu
 
-set language=en_US
+language messages en_US
 
 " =====================
 " SYSTEM AGNOSTIC SETUP
