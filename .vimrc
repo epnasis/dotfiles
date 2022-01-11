@@ -85,6 +85,7 @@ set mouse+=a"
 au BufRead downh
     \ set tw=80
     \ | set formatoptions+=t
+    \ | set formatoptions-=ro
     \ | set scrolloff=5
 
 " Python
