@@ -4,4 +4,5 @@ export EDITOR=vim
 alias ll='ls -l'
 alias vi='vim'
 
+gcloud config set accessibility/screen_reader false
 
