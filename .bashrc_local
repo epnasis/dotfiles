@@ -4,6 +4,8 @@ export EDITOR=vim
 alias ll='ls -l'
 alias vi='vim'
 
+export PATH="~/bin:$PATH"
+
 shopt -s histappend
 HISTSIZE=100000
 HISTFILESIZE=200000
