@@ -4,5 +4,9 @@ export EDITOR=vim
 alias ll='ls -l'
 alias vi='vim'
 
+shopt -s histappend
+HISTSIZE=100000
+HISTFILESIZE=200000
+
 gcloud config set accessibility/screen_reader false
 
