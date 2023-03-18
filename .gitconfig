@@ -1,10 +1,22 @@
 [alias]
-        s = status
-        ds = diff --staged
-        l = log --all --decorate --oneline --graph
-        d = diff
-        c = commit
+  s = status
+  ds = diff --staged
+  l = log --all --decorate --oneline --graph
+  d = diff
+  c = commit
+
 [user]
-        email = pwenda@google.com
-        name = Pawel Wenda
+  email = pawel@wenda.eu
+  name = Pawel Wenda
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICwmhfA/Q0IhQFo48wF34Fe7CzXJV0MkwbODkG0+s/u3
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
+
 
