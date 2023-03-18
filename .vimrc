@@ -18,9 +18,12 @@ set cryptmethod=blowfish2		" stronger encryption
 set clipboard=unnamed			" allow copy/paste with Windows/OSX
 set wildmenu					" allows tab completion menu
 set backspace=indent,eol,start	" allow changing indent w/ backspace
-set undofile					" allow undo - TODO add 1000 undo
 set visualbell					" silence! I kill ya! ;)
 set hidden						" allow to :e new file w/out asking to write changes
+
+" allow undo between sessions
+set undofile
+set undodir=~/.vim/undodir
 
 " Initialize pathogen to load all plugins
 execute pathogen#infect()
