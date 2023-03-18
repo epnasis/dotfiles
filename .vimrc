@@ -15,7 +15,6 @@ language messages en_US
 set nocompatible				" go into XXI century
 set encoding=utf-8				" proper encoding
 set cryptmethod=blowfish2		" stronger encryption
-set clipboard=unnamed			" allow copy/paste with Windows/OSX
 set wildmenu					" allows tab completion menu
 set backspace=indent,eol,start	" allow changing indent w/ backspace
 set visualbell					" silence! I kill ya! ;)
@@ -25,6 +24,9 @@ set hidden						" allow to :e new file w/out asking to write changes
 set undofile
 set undodir=~/.vim/undodir
 
+" allow copy/paste with Windows/OSX
+" set clipboard=unnamed
+"
 " Initialize pathogen to load all plugins
 execute pathogen#infect()
 
@@ -66,11 +68,11 @@ noremap  <silent> $ g$
 " Tabs
 " tabstop 		- how many spaces will tab character show up as visually
 " shiftwidth 	- how many spaces to shift < or > when you indent - should be
-" 				  same as tab stops	
+" 				  same as tab stops
 " expandtab 	- replace tab character with spaces (as many as tabstop says)
 " smarttab		- <BS> will remove 4 (=tabstop) spaces no just 1
-" softabstop 	- 
-" autoindent	- 
+" softabstop 	-
+" autoindent	-
 set listchars=tab:>\ ,extends:>,precedes:<
 set tabstop=4
 set shiftwidth=4
@@ -130,7 +132,7 @@ vnoremap / /\v
 set ignorecase
 set smartcase
 set gdefault
-set incsearch 
+set incsearch
 nnoremap <leader><space> :noh<cr>
 
 " Move up/down
@@ -220,7 +222,7 @@ if has('win32')
 	set guioptions-=L  "hide left scrollbar
 	set lines=30 columns=120	" default window size
 
-	" run NERDTree 
-	"au VimEnter * NERDTree M:\vnotes\
+	" run NERDTree
+    "au VimEnter * NERDTree M:\vnotes\
 endif
 
