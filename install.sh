@@ -12,7 +12,7 @@ echo
 
 for dotfile in $(dirname $0)/.*
 do
-    if [[ "$dotfile" =~ (\.git$|\.gitignore$|\.swp$|~|\.$) ]]; then
+    if [[ "$(basename $dotfile)" =~ (^\.git$|^\.gitignore$|\.swp$|~|\.$) ]]; then
         continue # exclude files based on regex above
     fi
     link $dotfile
