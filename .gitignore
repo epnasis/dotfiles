@@ -1,7 +1,4 @@
-*
-!.gitignore
-!.bashrc
-!.inputrc
-!.vimrc
-!.gitconfig
-
+# Ignore vim files:
+*~
+*.swp
+*.swo
