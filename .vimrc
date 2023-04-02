@@ -22,7 +22,8 @@ set hidden						" allow to :e new file w/out asking to write changes
 
 " allow undo between sessions
 set undofile
-set undodir=~/.vim/undodir
+set undodir=~/.vim/undodir,.
+set dir=~/.vim/swpdir,.
 
 " allow copy/paste with Windows/OSX
 " set clipboard=unnamed
@@ -127,8 +128,8 @@ let g:terraform_fmt_on_save=1
 let mapleader=" "
 
 " Search
-nnoremap / /\v
-vnoremap / /\v
+" nnoremap / /\v
+" vnoremap / /\v
 set ignorecase
 set smartcase
 set gdefault
@@ -149,13 +150,14 @@ vnoremap <tab> >gv
 vnoremap <s-tab> <gv
 
 " my shortcuts
-nnoremap <leader>rc :e $MYVIMRC<CR>		" edit .vimrc file
+nnoremap <leader>rc :tabe $MYVIMRC<CR>	" edit .vimrc file
 nnoremap <leader>o <c-w>o				" make it only window
 nnoremap <leader>n :NERDTree<CR>		" open NERDTree
 map <Leader>bg :let &background = ( &background == "dark"? "light" : "dark" )<CR>
 nnoremap <leader>d :o M:\vnotes\dry.epn<CR>
 
 " compile/run
+nnoremap <leader>rp :w<CR>:!python %<CR>
 nnoremap <leader>cc :w<CR>:make %<<CR>
 nnoremap <leader>cm :w<CR>:make<CR>
 nnoremap <leader>co :!./%<<CR>

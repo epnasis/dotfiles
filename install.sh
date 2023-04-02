@@ -8,6 +8,7 @@ link () {
 
 echo "[+] Making vim undo directory"
 mkdir -p ~/.vim/undodir
+mkdir -p ~/.vim/swpdir
 echo
 
 for dotfile in $(dirname $0)/.*
