@@ -26,7 +26,7 @@ set undodir=~/.vim/undodir,.
 set dir=~/.vim/swpdir,.
 
 " allow copy/paste with Windows/OSX
-" set clipboard=unnamed
+set clipboard=unnamed
 "
 " Initialize pathogen to load all plugins
 execute pathogen#infect()
@@ -87,20 +87,20 @@ filetype plugin indent on
 " Copy without line numbers
 set mouse+=a"
 
-" down notes
-au BufRead downh
-    \ set tw=80
+" markdown files
+au BufRead *.md
+    \ set tw=79
     \ | set formatoptions+=t
     \ | set formatoptions-=ro
     \ | set scrolloff=5
 
 " Python
-au BufNewFile,BufRead *.py
-    \ set tabstop=4
-    \ | set softtabstop=4
-    \ | set shiftwidth=4
-    \ | set textwidth=79
-    \ | set expandtab
+au FileType python
+    \ set tabstop=2                 " how many spaces to represent tab when displaying
+    \ | set softtabstop=2           " how many space tab represent when editing (using backspace & tab)
+    \ | set shiftwidth=2            " shifting with > and < moves by shiftwidth
+    \ | set textwidth=79            " break lines when line length increases
+    \ | set expandtab               " enter spaces when tab is pressed
     \ | set autoindent
     \ | set fileformat=unix
 
