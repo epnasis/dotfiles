@@ -87,6 +87,9 @@ filetype plugin indent on
 " Copy without line numbers
 set mouse+=a"
 
+" Allow saving of files as sudo when I forgot to start vim using sudo.
+cmap w!! w !sudo tee > /dev/null %
+
 " markdown files
 au BufRead *.md
     \ set tw=79
@@ -132,7 +135,7 @@ let mapleader=" "
 " vnoremap / /\v
 set ignorecase
 set smartcase
-set gdefault
+"set gdefault
 set incsearch
 nnoremap <leader><space> :noh<cr>
 
@@ -150,11 +153,16 @@ vnoremap <tab> >gv
 vnoremap <s-tab> <gv
 
 " my shortcuts
+nnoremap <leader>ev :tabe $MYVIMRC<CR>	" edit .vimrc file
+nnoremap <leader>sv :source $MYVIMRC<CR>	" reload .vimrc file
 nnoremap <leader>rc :tabe $MYVIMRC<CR>	" edit .vimrc file
 nnoremap <leader>o <c-w>o				" make it only window
 nnoremap <leader>n :NERDTree<CR>		" open NERDTree
 map <Leader>bg :let &background = ( &background == "dark"? "light" : "dark" )<CR>
 nnoremap <leader>d :o M:\vnotes\dry.epn<CR>
+
+nnoremap <C-p> :<C-u>FZF<CR>
+nnoremap <M-p> :<C-u>FZF<CR>
 
 " compile/run
 nnoremap <leader>rp :w<CR>:!python %<CR>
@@ -195,7 +203,7 @@ if has("unix")
 	let s:uname = system("uname")
 	if s:uname == "Darwin\n"
 		"Mac options
-            set guifont=PragmataProMonoLiga-Regular:h13
+            set guifont=PragmataProMonoLiga-Regular:h14
 			set path+=~/vnotes
 
 			" Launch NERDTree at startup
