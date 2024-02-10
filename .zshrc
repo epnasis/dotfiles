@@ -141,6 +141,7 @@ complete -o nospace -C /usr/local/bin/terraform terraform
 unsetopt correct_all
 
 
+export EDITOR='vim'
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
 alias brew="arch -arm64 brew"
@@ -157,12 +158,9 @@ source /Users/epnasis/.config/op/plugins.sh
 # -----------------------------------------------------------------
 # KEEP IT LAST - run in tmux
 # -----------------------------------------------------------------
-# if running inside Commander One start tmux
-CMD_ONE=$(ps -co command $PPID | grep "Commander One")
-if [ "$CMD_ONE" = "Commander One" ]; then
-    [ -z "$TMUX" ] && (
-        tmux attach || tmux new
-        tmux ls || exit
-    )
-fi
-
+# if running inside file manager
+#PARENT_CMD=$(ps -co command= $PPID)
+#if [ "$PARENT_CMD" = "Marta" ]; then
+#    [ -z "$TMUX" ] && ( tmux attach || tmux new ) 
+#fi
+#
