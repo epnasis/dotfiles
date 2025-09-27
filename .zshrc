@@ -164,3 +164,10 @@ source /Users/epnasis/.config/op/plugins.sh
 #    [ -z "$TMUX" ] && ( tmux attach || tmux new ) 
 #fi
 #
+
+# alias for Garmin FIT CSV Tool
+alias fittool='java -jar ~/Downloads/FitSDKRelease_21.133.00/java/FitCSVTool.jar'
+
+
+# Added by Windsurf
+export PATH="/Users/epnasis/.codeium/windsurf/bin:$PATH"
