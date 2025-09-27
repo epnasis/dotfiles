@@ -146,6 +146,9 @@ nnoremap <leader><space> :noh<cr>
 nnoremap <d-j> <c-e>
 nnoremap <d-k> <c-y>
 
+" Explorer
+nnoremap <leader>e :Ex<CR>
+
 " Indenting with tab
 nnoremap <tab> >>
 nnoremap <s-tab> <<
