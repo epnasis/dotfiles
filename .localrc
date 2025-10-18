@@ -2,6 +2,11 @@
 set -o vi
 export EDITOR=vim
 
+if command -v nvim &> /dev/null; then
+    alias vi='nvim'
+    alias vim='nvim'
+fi
+
 # ls
 export LS_OPTIONS='--color=auto'
 alias ls='ls $LS_OPTIONS'
