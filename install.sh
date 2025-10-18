@@ -8,6 +8,12 @@ link () {
 echo "[+] Making vim undo directory"
 mkdir -p ~/.vim/undodir
 
+# npm without root
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
+export PATH=~/.npm-global/bin:$PATH # should be in users profile
+
+
 link .gitconfig
 link .inputrc
 link .vimrc
