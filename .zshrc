@@ -188,7 +188,7 @@ export PATH="/Users/epnasis/.local/bin:$PATH"
 
 # Gemini CLI helper: cd to ~/gemini if in home directory, then run gemini
 gemini() {
-    if [ "$PWD" = "$HOME" ]; then
+    if [ "$PWD" = "$HOME" ] && [ "$#" -eq 0 ]; then
         cd "$HOME/gemini" || return
     fi
     command gemini "$@"
