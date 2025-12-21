@@ -193,3 +193,4 @@ gemini() {
     fi
     command gemini "$@"
 }
+alias gg=gemini
