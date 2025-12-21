@@ -168,6 +168,28 @@ source /Users/epnasis/.config/op/plugins.sh
 # alias for Garmin FIT CSV Tool
 alias fittool='java -jar ~/Downloads/FitSDKRelease_21.133.00/java/FitCSVTool.jar'
 
+# git aliases
+alias lg='lazygit'
+
+# python aliases
+alias pva='source .venv/bin/activate'
+alias pvd='deactivate'
 
 # Added by Windsurf
 export PATH="/Users/epnasis/.codeium/windsurf/bin:$PATH"
+
+# NVIM everywhere
+alias vi='nvim'
+alias vim='nvim'
+
+# UV
+export UV_PYTHON_PREFERENCE="only-managed"
+export PATH="/Users/epnasis/.local/bin:$PATH"
+
+# Gemini CLI helper: cd to ~/gemini if in home directory, then run gemini
+gemini() {
+    if [ "$PWD" = "$HOME" ]; then
+        cd "$HOME/gemini" || return
+    fi
+    command gemini "$@"
+}
