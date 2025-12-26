@@ -141,7 +141,7 @@ complete -o nospace -C /usr/local/bin/terraform terraform
 unsetopt correct_all
 
 
-export EDITOR='vim'
+export EDITOR='nvim'
 export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
 alias brew="arch -arm64 brew"
@@ -194,3 +194,5 @@ gemini() {
     command gemini "$@"
 }
 alias gg=gemini
+alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
+alias rr=ranger
