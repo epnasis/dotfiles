@@ -101,22 +101,57 @@ gsec() {
 
     # --- 3. Decryption ---
     local age_key="$SOPS_AGE_KEY"
-    if [ -z "$age_key" ]; then
-        read -rs "age_key?🔑 Paste your 1Password AGE Secret Key: "
-        echo ""
-        if [ -z "$age_key" ]; then
-            echo "[!] Error: No key provided."
-            return 1
-        fi
-        export SOPS_AGE_KEY="$age_key"
-    else
+    local ref_file="$HOME/dotfiles/.age_key_ref"
+
+    # A. Check Environment
+    if [ -n "$age_key" ]; then
         echo "[*] Using SOPS_AGE_KEY from environment"
+    
+    # B. Check 1Password Reference
+    elif [ -f "$ref_file" ] && command -v op >/dev/null 2>&1; then
+        echo "[op] Fetching key from 1Password..."
+        age_key=$(op read "$(cat "$ref_file")" 2>/dev/null)
+        if [ -n "$age_key" ]; then
+             export SOPS_AGE_KEY="$age_key"
+        else
+             echo "[!] Failed to read key from 1Password."
+        fi
+    fi
+
+    # C. Interactive Prompt
+    if [ -z "$age_key" ]; then
+        if command -v op >/dev/null 2>&1; then
+            echo "[?] 1Password CLI detected."
+            read -r "op_ref?🔑 Paste your 1Password Item Reference (op://...) to save it: "
+            # Strip quotes if present
+            op_ref="${op_ref%\"}"
+            op_ref="${op_ref##\"}"
+            
+            if [[ "$op_ref" == op://* ]]; then
+                echo "$op_ref" > "$ref_file"
+                echo "[+] Saved reference to $ref_file"
+                age_key=$(op read "$op_ref" 2>/dev/null)
+                export SOPS_AGE_KEY="$age_key"
+            else
+                 echo "[!] Invalid reference. Falling back to raw key."
+            fi
+        fi
+        
+        if [ -z "$age_key" ]; then
+            read -rs "age_key?🔑 Paste your raw AGE Secret Key: "
+            echo ""
+            if [ -z "$age_key" ]; then
+                echo "[!] Error: No key provided."
+                return 1
+            fi
+            export SOPS_AGE_KEY="$age_key"
+        fi
     fi
 
     echo "[*] Decrypting files..."
     local count=0
     while IFS= read -r encrypted_file; do
-        local target_file="${encrypted_file%.enc}"
+        local target_file="${encrypted_file%%.enc}"
         if [ ! -f "$target_file" ] || [ "$encrypted_file" -nt "$target_file" ]; then
             echo "    [+] Decrypting $encrypted_file -> $target_file"
             if ! sops -d "$encrypted_file" > "$target_file"; then
