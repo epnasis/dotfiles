@@ -176,13 +176,21 @@ EOF
         local target_file="${encrypted_file%.enc}"
         if [ ! -f "$target_file" ] || [ "$encrypted_file" -nt "$target_file" ]; then
             echo "    [+] Decrypting $encrypted_file -> $target_file"
+            
+            # Temporarily allow write permission so we can overwrite
+            [ -f "$target_file" ] && chmod u+w "$target_file"
+            
             if ! sops -d "$encrypted_file" > "$target_file"; then
                 echo "    [!] Failed to decrypt $encrypted_file"
             else
+                # Lock the file (Read-Only) to prevent accidental edits
+                chmod u-w "$target_file"
                 ((count++))
             fi
         else
             echo "    [*] Skipping $encrypted_file (Up to date)"
+            # Ensure it is locked even if we skipped it
+            [ -f "$target_file" ] && [ -w "$target_file" ] && chmod u-w "$target_file"
         fi
     done < <(find . -type f -name "*.enc")
     
