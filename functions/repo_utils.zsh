@@ -1,6 +1,6 @@
-# -----------------------------------------------------------------
+# ----------------------------------------------------------------- 
 #  Repo Utils
-# -----------------------------------------------------------------
+# ----------------------------------------------------------------- 
 
 ginit() {
   # --- 1. Determine Repo Name ---
@@ -11,7 +11,7 @@ ginit() {
 
   if [ -z "$repo_name" ]; then
     echo -n "Repo name [$default_name]: "
-    read input_name
+    read -r input_name
     repo_name="${input_name:-$default_name}"
   fi
 
@@ -63,10 +63,17 @@ gsec() {
 
     # --- 1. Gitignore Security ---
     if [ ! -f .gitignore ]; then touch .gitignore; fi
+    
     if ! grep -Fxq ".env" .gitignore; then
         echo ".env" >> .gitignore
         echo "[+] Added .env to .gitignore"
     fi
+    
+    if ! grep -Fxq "!.env.enc" .gitignore; then
+        echo "!.env.enc" >> .gitignore
+        echo "[+] Whitelisted .env.enc in .gitignore"
+    fi
+    
     if ! grep -Fq "secrets/*" .gitignore; then
         echo "" >> .gitignore
         echo "secrets/*" >> .gitignore
@@ -79,7 +86,7 @@ gsec() {
     
     if [ ! -f "$pub_key_file" ]; then
         echo -n "[?] Enter your Age Public Key (age1...) to initialize SOPS: "
-        read user_pub_key
+        read -r user_pub_key
         if [[ "$user_pub_key" == age1* ]]; then
             echo "$user_pub_key" > "$pub_key_file"
             echo "[+] Saved public key to $pub_key_file"
@@ -91,7 +98,17 @@ gsec() {
     if [ ! -f ".sops.yaml" ] && [ -f "$pub_key_file" ]; then
         local pub_key=$(cat "$pub_key_file")
         echo "[+] Generating .sops.yaml..."
-        printf "creation_rules:\n  - path_regex: secrets/.*\\.enc\$\n    age: \"\"\n  - path_regex: \\.env\\.enc\$\n    age: \"\"\n" "$pub_key" "$pub_key" > .sops.yaml
+        cat <<EOF > .sops.yaml
+creation_rules:
+  - path_regex: secrets/.*\.enc$
+    key_groups:
+      - age:
+          - "$pub_key"
+  - path_regex: \.env\.enc$
+    key_groups:
+      - age:
+          - "$pub_key"
+EOF
         
         # Reminder for the user
         echo "    [*] Setup complete. To add a secret file:"
@@ -123,17 +140,22 @@ gsec() {
         if command -v op >/dev/null 2>&1; then
             echo "[?] 1Password CLI detected."
             read -r "op_ref?🔑 Paste your 1Password Item Reference (op://...) to save it: "
-            # Strip quotes if present
-            op_ref="${op_ref%\"}"
-            op_ref="${op_ref##\"}"
+            # Strip all double quotes
+            op_ref="${op_ref//\"/}"
             
             if [[ "$op_ref" == op://* ]]; then
-                echo "$op_ref" > "$ref_file"
-                echo "[+] Saved reference to $ref_file"
-                age_key=$(op read "$op_ref" 2>/dev/null)
-                export SOPS_AGE_KEY="$age_key"
+                echo "[op] Validating reference..."
+                local test_key=$(op read "$op_ref" 2>/dev/null)
+                if [ -n "$test_key" ]; then
+                    echo "$op_ref" > "$ref_file"
+                    echo "[+] Reference verified and saved to $ref_file"
+                    age_key="$test_key"
+                    export SOPS_AGE_KEY="$age_key"
+                else
+                    echo "[!] Error: Could not read secret from provided reference. Not saving."
+                fi
             else
-                 echo "[!] Invalid reference. Falling back to raw key."
+                 echo "[!] Invalid reference format. Falling back to raw key."
             fi
         fi
         
@@ -151,7 +173,7 @@ gsec() {
     echo "[*] Decrypting files..."
     local count=0
     while IFS= read -r encrypted_file; do
-        local target_file="${encrypted_file%%.enc}"
+        local target_file="${encrypted_file%.enc}"
         if [ ! -f "$target_file" ] || [ "$encrypted_file" -nt "$target_file" ]; then
             echo "    [+] Decrypting $encrypted_file -> $target_file"
             if ! sops -d "$encrypted_file" > "$target_file"; then
