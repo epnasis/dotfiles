@@ -85,7 +85,7 @@ set autoindent
 filetype plugin indent on
 
 " Copy without line numbers
-set mouse+=a"
+set mouse+=a
 
 " Allow saving of files as sudo when I forgot to start vim using sudo.
 cmap w!! w !sudo tee > /dev/null %
@@ -238,4 +238,3 @@ if has('win32')
 	" run NERDTree
     "au VimEnter * NERDTree M:\vnotes\
 endif
-

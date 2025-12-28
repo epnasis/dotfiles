@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/epnasis/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -108,11 +108,8 @@ alias zshconfig="vi ~/.zshrc; source ~/.zshrc"
 autoload -U +X bashcompinit && bashcompinit
 #source /usr/local/etc/bash_completion.d/az
 
-# for zsh-completions
-autoload -U compinit && compinit
-
 # disable asking to correct arguments
-setopt nocorrectall; setopt correct
+unsetopt correct correct_all
 
 # kubeclt completion
 #if [ $commands[kubectl] ]; then
@@ -125,35 +122,50 @@ setopt nocorrectall; setopt correct
 #fi
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/epnasis/google-cloud-sdk/path.zsh.inc' ]; then source '/Users/epnasis/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then source "$HOME/google-cloud-sdk/path.zsh.inc"; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/Users/epnasis/google-cloud-sdk/completion.zsh.inc' ]; then source '/Users/epnasis/google-cloud-sdk/completion.zsh.inc'; fi
+if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then source "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
 
-complete -o nospace -C /usr/local/bin/terraform terraform
+if command -v terraform >/dev/null 2>&1; then
+  complete -o nospace -C "$(command -v terraform)" terraform
+fi
 
 #[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # FZF defaults
 #export FZF_DEFAULT_OPTS="--reverse --multi --height 50% --inline-info --preview='[[ \$(file --mime {}) =~ binary ]] && xxd {} || (bat --style=numbers --color=always {} || cat {}) 2>/dev/null | head -300' --bind 'ctrl-o:toggle-preview'"
 
-# Disable annoying command correct
-unsetopt correct_all
-
-
 export EDITOR='nvim'
-export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
+  export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+elif [ -d "/usr/local/opt/ruby/bin" ]; then
+  export PATH="/usr/local/opt/ruby/bin:$PATH"
+fi
 
-alias brew="arch -arm64 brew"
+if [ "$(uname -m)" = "arm64" ] && command -v arch >/dev/null 2>&1; then
+  alias brew="arch -arm64 brew"
+fi
 
 # 1password autocomplete
-eval "$(op completion zsh)"; compdef _op op
+if command -v op >/dev/null 2>&1; then
+  eval "$(op completion zsh)"
+  compdef _op op
+fi
 
 # make pytho
-export PATH=$(brew --prefix python)/libexec/bin:$PATH
+if [ -d "/opt/homebrew/opt/python/libexec/bin" ]; then
+  export PATH="/opt/homebrew/opt/python/libexec/bin:$PATH"
+elif [ -d "/usr/local/opt/python/libexec/bin" ]; then
+  export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+fi
 
-complete -o nospace -C /opt/homebrew/bin/vault vault
-source /Users/epnasis/.config/op/plugins.sh
+if command -v vault >/dev/null 2>&1; then
+  complete -o nospace -C "$(command -v vault)" vault
+fi
+if [ -f "$HOME/.config/op/plugins.sh" ]; then
+  source "$HOME/.config/op/plugins.sh"
+fi
 
 # -----------------------------------------------------------------
 # KEEP IT LAST - run in tmux
@@ -176,7 +188,9 @@ alias pva='source .venv/bin/activate'
 alias pvd='deactivate'
 
 # Added by Windsurf
-export PATH="/Users/epnasis/.codeium/windsurf/bin:$PATH"
+if [ -d "$HOME/.codeium/windsurf/bin" ]; then
+  export PATH="$HOME/.codeium/windsurf/bin:$PATH"
+fi
 
 # NVIM everywhere
 alias vi='nvim'
@@ -184,7 +198,9 @@ alias vim='nvim'
 
 # UV
 export UV_PYTHON_PREFERENCE="only-managed"
-export PATH="/Users/epnasis/.local/bin:$PATH"
+if [ -d "$HOME/.local/bin" ]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 
 # Gemini CLI helper: cd to ~/gemini if in home directory, then run gemini
 gemini() {
@@ -196,4 +212,7 @@ gemini() {
 alias gg=gemini
 alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 alias rr=ranger
-source ~/dotfiles/functions/repo_utils.zsh
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+if [ -f "$DOTFILES_DIR/functions/repo_utils.zsh" ]; then
+  source "$DOTFILES_DIR/functions/repo_utils.zsh"
+fi
