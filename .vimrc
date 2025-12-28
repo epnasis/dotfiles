@@ -25,8 +25,8 @@ set undofile
 set undodir=~/.vim/undodir,.
 set dir=~/.vim/swpdir,.
 
-" allow copy/paste with Windows/OSX
-set clipboard=unnamed
+" allow copy/paste with macOS clipboard
+set clipboard=unnamedplus
 "
 " Initialize pathogen to load all plugins
 execute pathogen#infect()
@@ -34,6 +34,9 @@ execute pathogen#infect()
 " Look & feel
 syntax on
 set t_Co=256
+if has("termguicolors")
+	set termguicolors
+endif
 set background=dark				" make it fit the night! :)
 "colorscheme solarized				" choose colors
 colorscheme cobalt2				" choose colors
@@ -162,7 +165,6 @@ nnoremap <leader>rc :tabe $MYVIMRC<CR>	" edit .vimrc file
 nnoremap <leader>o <c-w>o				" make it only window
 nnoremap <leader>n :NERDTree<CR>		" open NERDTree
 map <Leader>bg :let &background = ( &background == "dark"? "light" : "dark" )<CR>
-nnoremap <leader>d :o M:\vnotes\dry.epn<CR>
 
 nnoremap <C-p> :<C-u>FZF<CR>
 nnoremap <M-p> :<C-u>FZF<CR>
@@ -206,7 +208,9 @@ if has("unix")
 	let s:uname = system("uname")
 	if s:uname == "Darwin\n"
 		"Mac options
-            set guifont=PragmataProMonoLiga-Regular:h14
+			if has("gui_running")
+				set guifont=PragmataProMonoLiga-Regular:h14
+			endif
 			set path+=~/vnotes
 
 			" Launch NERDTree at startup
@@ -214,27 +218,4 @@ if has("unix")
 	else
 		"Unix options
 	endif
-endif
-
-" =============
-" WINDOWS SETUP
-" =============
-if has('win32')
-	" Directories
-	" Note - you need sync all vimfiles under $HOME/vimfiles folder
-	set path+=.\**,m:\vnotes,~\vimfiles
-	set undodir=%temp%\vim
-	set backupdir=%temp%\vim
-
-	" GUI setup
-	"set guifont=Consolas:h9:cEASTEUROPE:qDRAFT
-	set guifont=Meslo_LG_M:h9:cEASTEUROPE:qDRAFT
-	set guioptions-=m  "hide menu bar
-	set guioptions-=T  "hide toolbar
-	set guioptions-=r  "hide right scrollbar
-	set guioptions-=L  "hide left scrollbar
-	set lines=30 columns=120	" default window size
-
-	" run NERDTree
-    "au VimEnter * NERDTree M:\vnotes\
 endif

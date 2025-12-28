@@ -27,3 +27,9 @@
 ## Security & Configuration Notes
 - Encrypted secrets are stored as `*.enc` files. Use `gsec` to manage `.sops.yaml` and decrypt into read-only files.
 - `gsec` expects an Age public key in `~/.age_public_key` or a 1Password reference in `~/.age_key_ref`.
+
+## Session Notes (2025-01-18)
+- Fixed portability and startup safety in `.zshrc`, `.bashrc`, and `.vimrc`, and documented repo guidelines in `AGENTS.md`.
+- Vim colorscheme issue: `cobalt2` uses hex values for `ctermfg`; with only `termguicolors`, Vim can hit `E421`. Restoring `set t_Co=256` keeps `cobalt2` on its 256-color branch while still enabling truecolor.
+- Windows-specific Vim settings were removed; `.vimrc` now targets macOS + terminal Vim.
+- Validation: `zsh -n`, `bash -n`, and `vim -V1 -i NONE -Nu NONE -n -es +'source ~/.vimrc' +q` were used to verify syntax/config.
