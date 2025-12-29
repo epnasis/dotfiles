@@ -10,7 +10,9 @@
 - `./install.sh` — symlinks all dotfiles in this repo into `~` and creates `~/.vim/undodir` and `~/.vim/swpdir`.
 - `source functions/repo_utils.zsh` — load helper functions into your shell.
 - `ginit [repo-name]` — initialize a local git repo and optionally create a private GitHub repo via `gh`.
-- `gsec` — set up SOPS/Age workflow, update `.gitignore`, and decrypt `*.enc` files.
+- `genc` — set up SOPS/Age workflow, update `.gitignore`, decrypt `.enc.*` files, and install pre-commit hook.
+- `enc [files]` — encrypt file(s), or all unencrypted secrets if no args. Skips unchanged files to avoid polluting git history.
+- `genc_hook` — manually install/reinstall the secrets sync pre-commit hook.
 
 ## Coding Style & Naming Conventions
 - Shell scripts are bash/zsh; use 2-space indentation and keep functions short.
@@ -25,8 +27,9 @@
 - Keep PRs focused; describe the dotfiles or functions touched and any manual verification performed.
 
 ## Security & Configuration Notes
-- Encrypted secrets are stored as `*.enc` files. Use `gsec` to manage `.sops.yaml` and decrypt into read-only files.
-- `gsec` expects an Age public key in `~/.age_public_key` or a 1Password reference in `~/.age_key_ref`.
+- Encrypted secrets use `.enc.*` pattern: `.env` → `.enc.env`, `file.yaml` → `file.enc.yaml`.
+- `genc` expects an Age public key in `~/dotfiles/.age_public_key` or a 1Password reference in `~/dotfiles/.age_key_ref`.
+- Pre-commit hook blocks commits when plain files differ from their encrypted counterparts (content-based check).
 
 ## Session Notes (2025-01-18)
 - Fixed portability and startup safety in `.zshrc`, `.bashrc`, and `.vimrc`, and documented repo guidelines in `AGENTS.md`.
