@@ -58,6 +58,11 @@ ENABLE_CORRECTION="false"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+# python plugin setup
+PYTHON_VENV_NAME=".venv"
+PYTHON_VENV_NAMES=($PYTHON_VENV_NAME venv)
+#PYTHON_AUTO_VRUN=true
+
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
@@ -65,6 +70,13 @@ ENABLE_CORRECTION="false"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  brew
+  common-aliases
+  gcloud
+  gh
+  pip
+  python
+  uv
   vi-mode
   z
   zsh-autosuggestions
@@ -111,6 +123,9 @@ alias zshconfig="vi ~/.zshrc; source ~/.zshrc"
 # custom
 autoload -U +X bashcompinit && bashcompinit
 #source /usr/local/etc/bash_completion.d/az
+
+# for zsh-completions
+autoload -U compinit && compinit
 
 # disable asking to correct arguments
 unsetopt correct correct_all
@@ -210,6 +225,21 @@ export UV_PYTHON_PREFERENCE="only-managed"
 if [ -d "$HOME/.local/bin" ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
+
+# Disable the 'P' alias from common-aliases to remove pygmentize dependency
+unalias 'P'
+
+# Clone a repository from your gh repo list using fzf
+ghc() {
+  # Get the list of repos, pipe to fzf for selection, and extract the repo name
+  local repo
+  repo=$(gh repo list | fzf | awk '{print $1}')
+
+  # If a repo was selected, clone it
+  if [[ -n "$repo" ]]; then
+    gh repo clone "$repo"
+  fi
+}
 
 # Gemini CLI helper: cd to ~/gemini if in home directory, then run gemini
 gemini() {
