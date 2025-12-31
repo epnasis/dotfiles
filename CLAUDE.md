@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important: Keep This File Updated
+
+**CRITICAL INSTRUCTION:** When making changes to this repository, ALWAYS update this CLAUDE.md file to:
+- Document new configurations, scripts, or workflows
+- Explain design decisions and rationale behind changes
+- Record important learnings and troubleshooting insights
+- Preserve context for future sessions
+- Update command tables, file structure diagrams, and examples
+
+This ensures continuity across sessions and helps future Claude instances understand the repository's evolution.
+
+## Git Commit Guidelines
+
+**NEVER add Claude Code marketing footers or attribution to commit messages.** Keep commits clean and professional without "Generated with Claude Code" footers, co-author tags, or similar branding.
+
 ## Overview
 
 Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configurations. Includes shell utilities for streamlined repo initialization and SOPS/AGE secrets management.
@@ -162,6 +177,65 @@ Recommended: JetBrainsMono Nerd Font, Iosevka Nerd Font, or Hack Nerd Font.
 ```bash
 brew install --cask font-jetbrains-mono-nerd-font
 ```
+
+## Tmux Configuration
+
+### SSH Client Environment Update
+
+The `.tmux.conf` includes:
+```bash
+set-option -g update-environment "SSH_CLIENT"
+```
+
+This ensures tmux updates the `SSH_CLIENT` variable when reattaching to a session from a different SSH connection.
+
+**Why this matters:**
+- `SSH_CLIENT` contains connection info: `<client-ip> <client-port> <server-port>`
+- By default, tmux updates `DISPLAY`, `SSH_AUTH_SOCK`, `SSH_CONNECTION`, but NOT `SSH_CLIENT`
+- Without this setting: attach from Computer A, detach, reattach from Computer B → `SSH_CLIENT` shows stale Computer A info
+- With this setting: `SSH_CLIENT` reflects the current connection
+- Benefits: scripts that check connection source get accurate info, security logging works correctly, useful when connecting from multiple locations
+
+## Oh-My-Zsh Plugins
+
+The `.zshrc` includes these plugins for enhanced functionality:
+
+| Plugin | Purpose |
+|--------|---------|
+| `git` | Git aliases and functions |
+| `brew` | Homebrew completion and aliases |
+| `common-aliases` | Useful shell aliases (note: `P` alias disabled via `unalias 'P'`) |
+| `gcloud` | Google Cloud SDK completion |
+| `gh` | GitHub CLI completion |
+| `pip` | Python pip completion |
+| `python` | Python virtual environment helpers (configured with `.venv` preference) |
+| `uv` | UV package manager support |
+| `vi-mode` | Vi keybindings in shell |
+| `z` | Jump to frequent directories |
+| `zsh-autosuggestions` | Command suggestions based on history |
+| `zsh-syntax-highlighting` | Syntax highlighting for commands |
+| `zsh-completions` | Additional completion definitions |
+| `docker` | Docker completion and aliases |
+
+**Python plugin configuration:**
+```bash
+PYTHON_VENV_NAME=".venv"
+PYTHON_VENV_NAMES=($PYTHON_VENV_NAME venv)
+```
+
+## Custom Shell Functions
+
+### `ghc()` - Clone GitHub Repo with FZF
+```bash
+ghc
+```
+Interactive repository cloner using `gh` and `fzf`. Lists your GitHub repos, lets you fuzzy-search and select, then clones the selected repo.
+
+### `gemini()` - Gemini CLI Helper
+```bash
+gemini [args]
+```
+Auto-navigates to `~/gemini` when called from home directory without arguments, then runs the gemini command. Aliased as `gg`.
 
 ## Technical Notes (SOPS Behavior)
 
