@@ -18,7 +18,8 @@ $character"""
 [directory]
 style = "bold lavender"
 truncation_length = 4
-truncate_to_repo = true
+truncate_to_repo = false
+truncation_symbol = "…/" # Symbol to show when path is cut off
 
 [git_branch]
 symbol = " "
