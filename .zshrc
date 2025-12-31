@@ -1,6 +1,9 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+# Dotfiles directory (used throughout this config)
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -89,7 +92,12 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # Catppuccin Mocha syntax highlighting theme
-source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
+# Try dotfiles repo first, then fall back to ~/.zsh/
+if [ -f "$DOTFILES_DIR/zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh" ]; then
+  source "$DOTFILES_DIR/zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh"
+elif [ -f "$HOME/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh" ]; then
+  source "$HOME/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh"
+fi
 
 # User configuration
 
@@ -250,7 +258,6 @@ gemini() {
 }
 alias gg=gemini
 alias rr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 if [ -f "$DOTFILES_DIR/functions/repo_utils.zsh" ]; then
   source "$DOTFILES_DIR/functions/repo_utils.zsh"
 fi

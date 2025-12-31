@@ -26,13 +26,20 @@ Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configura
 ```
 ~/dotfiles/
 ├── .*                    # Dotfiles symlinked to $HOME (.zshrc, .vimrc, .gitconfig, etc.)
+├── config/
+│   ├── starship.toml     # Starship prompt configuration
+│   └── bat/
+│       ├── config        # bat syntax highlighter config
+│       └── themes/       # Catppuccin Mocha theme for bat
+├── zsh/
+│   └── catppuccin_mocha-zsh-syntax-highlighting.zsh  # Zsh syntax theme
 ├── functions/
 │   └── repo_utils.zsh    # Shell functions: ginit, genc, enc, genc_hook
 ├── templates/
 │   └── gitignore_default # Template for new repos (includes SOPS patterns)
 ├── .age_public_key       # AGE public key for SOPS encryption
 ├── .age_key_ref          # 1Password reference to AGE private key
-└── install.sh            # Symlinks dotfiles to $HOME
+└── install.sh            # Comprehensive setup script (installs dependencies + symlinks)
 ```
 
 ## Commands
@@ -81,20 +88,68 @@ genc                    # decrypts .enc.* files + installs hook
 
 ## Installation
 
+The `install.sh` script is now fully automated and portable. It will:
+- Install oh-my-zsh and required plugins
+- Check for and report missing tools
+- Set up all config files and themes
+- Symlink dotfiles to $HOME
+
 ```bash
 cd ~/dotfiles
-./install.sh            # symlinks dotfiles to $HOME
+./install.sh            # Automated setup - installs dependencies + symlinks dotfiles
 source ~/.zshrc         # or restart shell
 ```
 
+The script will prompt you to install any missing tools with specific brew commands.
+
 ## Dependencies
 
-- `sops` and `age` - `brew install sops age`
+All dependencies are checked by `install.sh`. Install missing ones with:
+
+```bash
+brew install starship fzf bat sops age gh nvim
+```
+
+**Core tools:**
+- `oh-my-zsh` - Zsh framework (auto-installed by install.sh)
+- `starship` - Prompt theme
+- `fzf` - Fuzzy finder
+- `bat` - Cat replacement with syntax highlighting
+- `sops` and `age` - Secrets encryption
 - `gh` - GitHub CLI for `ginit`
+- `nvim` - Neovim editor
 - `op` - 1Password CLI (optional, for key retrieval)
-- `starship` - Prompt theme (`brew install starship`)
-- `bat` - Cat replacement with syntax highlighting (`brew install bat`)
-- `fzf` - Fuzzy finder (`brew install fzf`)
+
+**Oh-my-zsh plugins** (auto-installed by install.sh):
+- zsh-autosuggestions
+- zsh-syntax-highlighting
+- zsh-completions
+
+## macOS Gatekeeper Quarantine Fix
+
+When using Homebrew-installed binaries over SSH, macOS Gatekeeper may show GUI popups asking to confirm running "downloaded from internet" apps. These popups are invisible in SSH sessions, causing commands to hang.
+
+**Symptoms:**
+- Shell hangs when loading (e.g., during `op completion zsh`)
+- Works fine when accessed via RDP/GUI
+- Affects tools like `op`, `gh`, or other Homebrew CLI tools
+
+**Fix (run once after installing affected tools):**
+```bash
+# For specific tools that hang:
+xattr -d com.apple.quarantine $(which op)
+xattr -d com.apple.quarantine $(which gh)
+
+# Or for all Homebrew binaries (less secure but convenient):
+xattr -r -d com.apple.quarantine /opt/homebrew/bin/*  # Apple Silicon
+xattr -r -d com.apple.quarantine /usr/local/bin/*     # Intel
+```
+
+**Verify quarantine is removed:**
+```bash
+xattr $(which op)
+# Should show nothing or no com.apple.quarantine
+```
 
 ## Shell Theming (Catppuccin Mocha)
 
@@ -130,43 +185,25 @@ printf 'symbol = "\ue0a0 "\n'
 
 ### Setup from Scratch
 
+**Note:** The `install.sh` script now handles most of this automatically. Just run `./install.sh` after cloning the repo.
+
+For manual setup:
+
 ```bash
-# 1. Install Starship
-brew install starship
+# 1. Install tools
+brew install starship fzf bat
 
-# 2. Download syntax highlighting theme
-mkdir -p ~/.zsh
-curl -o ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh \
-  https://raw.githubusercontent.com/catppuccin/zsh-syntax-highlighting/main/themes/catppuccin_mocha-zsh-syntax-highlighting.zsh
+# 2. Run install.sh (handles oh-my-zsh, plugins, themes, configs)
+./install.sh
 
-# 3. Setup bat theme
-mkdir -p "$(bat --config-dir)/themes"
-curl -o "$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme" \
-  https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme
-bat cache --build
-echo '--theme="Catppuccin Mocha"' > ~/.config/bat/config
-
-# 4. iTerm2 - import color scheme from:
+# 3. iTerm2 - import color scheme from:
 # https://github.com/catppuccin/iterm/raw/main/colors/catppuccin-mocha.itermcolors
+
+# 4. Install Nerd Font
+brew install --cask font-jetbrains-mono-nerd-font
 ```
 
-### .zshrc Additions
-
-```bash
-# Catppuccin syntax highlighting (after oh-my-zsh source)
-source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
-
-# fzf Catppuccin colors
-export FZF_DEFAULT_OPTS=" \
---color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
---color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
---color=selected-bg:#45475a \
---reverse --multi"
-
-# Starship init (keep at end of .zshrc)
-eval "$(starship init zsh)"
-```
+All theme files and configs are now included in the repo under `config/` and `zsh/` directories.
 
 ### Font Requirements
 
