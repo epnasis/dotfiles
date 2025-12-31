@@ -8,7 +8,8 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="cobalt2"
+# Disabled oh-my-zsh theme - using Starship instead
+ZSH_THEME=""
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -75,6 +76,9 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+# Catppuccin Mocha syntax highlighting theme
+source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -131,10 +135,15 @@ if command -v terraform >/dev/null 2>&1; then
   complete -o nospace -C "$(command -v terraform)" terraform
 fi
 
-#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# FZF defaults
-#export FZF_DEFAULT_OPTS="--reverse --multi --height 50% --inline-info --preview='[[ \$(file --mime {}) =~ binary ]] && xxd {} || (bat --style=numbers --color=always {} || cat {}) 2>/dev/null | head -300' --bind 'ctrl-o:toggle-preview'"
+# FZF with Catppuccin Mocha colors
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--color=selected-bg:#45475a \
+--reverse --multi"
 
 export EDITOR='nvim'
 if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
@@ -210,9 +219,11 @@ gemini() {
     command gemini "$@"
 }
 alias gg=gemini
-alias ranger='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
-alias rr=ranger
+alias rr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 if [ -f "$DOTFILES_DIR/functions/repo_utils.zsh" ]; then
   source "$DOTFILES_DIR/functions/repo_utils.zsh"
 fi
+
+# Initialize Starship prompt (keep at end)
+eval "$(starship init zsh)"

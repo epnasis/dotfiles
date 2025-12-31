@@ -77,6 +77,91 @@ source ~/.zshrc         # or restart shell
 - `sops` and `age` - `brew install sops age`
 - `gh` - GitHub CLI for `ginit`
 - `op` - 1Password CLI (optional, for key retrieval)
+- `starship` - Prompt theme (`brew install starship`)
+- `bat` - Cat replacement with syntax highlighting (`brew install bat`)
+- `fzf` - Fuzzy finder (`brew install fzf`)
+
+## Shell Theming (Catppuccin Mocha)
+
+Unified Catppuccin Mocha theme across terminal tools to match neovim.
+
+### Components
+
+| Tool | Config Location | Purpose |
+|------|-----------------|---------|
+| Starship | `~/.config/starship.toml` | Prompt with git status, python version, etc. |
+| zsh-syntax-highlighting | `~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh` | Command syntax colors |
+| fzf | `FZF_DEFAULT_OPTS` in `.zshrc` | Fuzzy finder colors |
+| bat | `~/.config/bat/config` | Syntax-highlighted cat replacement |
+| iTerm2 | Preferences → Profiles → Colors | Terminal colors |
+
+### Starship Prompt
+
+Config at `~/.config/starship.toml` uses Catppuccin palette with Nerd Font icons.
+
+**Important:** When editing `starship.toml`, Nerd Font characters may get stripped by some editors. Use `printf` with Unicode escapes:
+
+```bash
+# Git branch icon (U+E0A0)
+printf 'symbol = "\ue0a0 "\n'
+
+# Other common icons:
+# Python: \ue73c
+# Node.js: \ue718
+# Rust: \ue7a8
+# Go: \ue627
+# Docker: \ue7b0
+```
+
+### Setup from Scratch
+
+```bash
+# 1. Install Starship
+brew install starship
+
+# 2. Download syntax highlighting theme
+mkdir -p ~/.zsh
+curl -o ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh \
+  https://raw.githubusercontent.com/catppuccin/zsh-syntax-highlighting/main/themes/catppuccin_mocha-zsh-syntax-highlighting.zsh
+
+# 3. Setup bat theme
+mkdir -p "$(bat --config-dir)/themes"
+curl -o "$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme" \
+  https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme
+bat cache --build
+echo '--theme="Catppuccin Mocha"' > ~/.config/bat/config
+
+# 4. iTerm2 - import color scheme from:
+# https://github.com/catppuccin/iterm/raw/main/colors/catppuccin-mocha.itermcolors
+```
+
+### .zshrc Additions
+
+```bash
+# Catppuccin syntax highlighting (after oh-my-zsh source)
+source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
+
+# fzf Catppuccin colors
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+--color=selected-bg:#45475a \
+--reverse --multi"
+
+# Starship init (keep at end of .zshrc)
+eval "$(starship init zsh)"
+```
+
+### Font Requirements
+
+Requires a Nerd Font for icons. iTerm2 → Preferences → Profiles → Text → Font.
+
+Recommended: JetBrainsMono Nerd Font, Iosevka Nerd Font, or Hack Nerd Font.
+
+```bash
+brew install --cask font-jetbrains-mono-nerd-font
+```
 
 ## Technical Notes (SOPS Behavior)
 
