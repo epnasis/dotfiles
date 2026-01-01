@@ -34,7 +34,8 @@ Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configura
 ├── zsh/
 │   └── catppuccin_mocha-zsh-syntax-highlighting.zsh  # Zsh syntax theme
 ├── functions/
-│   └── repo_utils.zsh    # Shell functions: ginit, genc, enc, genc_hook
+│   ├── repo_utils.zsh    # Shell functions: ginit, genc, enc, genc_hook
+│   └── safe_rm.zsh       # Safe rm wrapper (moves to trash in interactive shells)
 ├── templates/
 │   └── gitignore_default # Template for new repos (includes SOPS patterns)
 ├── .age_public_key       # AGE public key for SOPS encryption
@@ -241,7 +242,7 @@ The `.zshrc` includes these plugins for enhanced functionality:
 |--------|---------|
 | `git` | Git aliases and functions |
 | `brew` | Homebrew completion and aliases |
-| `common-aliases` | Useful shell aliases (note: `P` alias disabled via `unalias 'P'`) |
+| `common-aliases` | Useful shell aliases (note: `P` and `rm` aliases disabled) |
 | `gcloud` | Google Cloud SDK completion |
 | `gh` | GitHub CLI completion |
 | `pip` | Python pip completion |
@@ -273,6 +274,50 @@ Interactive repository cloner using `gh` and `fzf`. Lists your GitHub repos, let
 gemini [args]
 ```
 Auto-navigates to `~/gemini` when called from home directory without arguments, then runs the gemini command. Aliased as `gg`.
+
+## Safe rm Wrapper
+
+The `rm` command is replaced by a shell function (in `functions/safe_rm.zsh`) that moves files to trash instead of permanently deleting them.
+
+### Behavior
+
+| Context | Action |
+|---------|--------|
+| Interactive shell + non-temp files | Moves to trash |
+| Interactive shell + temp files only | Real `rm` (no point trashing temp files) |
+| Non-interactive (scripts) | Real `rm` (preserves script behavior) |
+| No trash command available | Real `rm` with warning |
+| `rm -f` on non-existent file | Silent skip (mimics real rm -f) |
+| `rm` on non-existent file | Error (mimics real rm) |
+
+### Platform Support
+
+| OS | Trash Command |
+|----|---------------|
+| macOS | `/usr/bin/trash` (built-in, Apple-signed) |
+| Linux | `trash-put` (trash-cli) or `gio trash` |
+
+### Design Rationale
+
+1. **Shell function beats aliases** - Functions take precedence over aliases, solving conflicts with `common-aliases` plugin's `rm -i`.
+
+2. **Scripts use real rm** - Detects non-interactive shells via `$-` variable to avoid breaking scripts.
+
+3. **Temp files bypass trash** - Files in `$TMPDIR`, `/tmp`, `/var/tmp`, or `/private/tmp` are deleted permanently.
+
+4. **No dotfiles = be careful** - On servers without your dotfiles, `rm` behaves normally. Use `/bin/rm` explicitly when you want permanent deletion.
+
+### Linux Setup
+
+```bash
+# Ubuntu/Debian
+sudo apt install trash-cli
+
+# Fedora
+sudo dnf install trash-cli
+
+# GNOME systems usually have gio pre-installed
+```
 
 ## Technical Notes (SOPS Behavior)
 

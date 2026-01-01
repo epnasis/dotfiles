@@ -234,8 +234,9 @@ if [ -d "$HOME/.local/bin" ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Disable the 'P' alias from common-aliases to remove pygmentize dependency
-unalias 'P'
+# Disable aliases from common-aliases plugin
+unalias 'P'   # pygmentize dependency
+unalias 'rm'  # we use safe_rm.zsh function instead
 
 # Clone a repository from your gh repo list using fzf
 ghc() {
@@ -260,6 +261,9 @@ alias gg=gemini
 alias rr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 if [ -f "$DOTFILES_DIR/functions/repo_utils.zsh" ]; then
   source "$DOTFILES_DIR/functions/repo_utils.zsh"
+fi
+if [ -f "$DOTFILES_DIR/functions/safe_rm.zsh" ]; then
+  source "$DOTFILES_DIR/functions/safe_rm.zsh"
 fi
 
 # Initialize Starship prompt (keep at end)
