@@ -34,7 +34,7 @@ Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configura
 ├── zsh/
 │   └── catppuccin_mocha-zsh-syntax-highlighting.zsh  # Zsh syntax theme
 ├── functions/
-│   ├── repo_utils.zsh    # Shell functions: ginit, genc, enc, genc_hook
+│   ├── repo_utils.zsh    # Shell functions: fp, gs, ginit, genc, enc, genc_hook
 │   └── safe_rm.zsh       # Safe rm wrapper (moves to trash in interactive shells)
 ├── templates/
 │   └── gitignore_default # Template for new repos (includes SOPS patterns)
@@ -47,6 +47,8 @@ Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configura
 
 | Command | Purpose |
 |---------|---------|
+| `fp` | Find git projects recursively with fzf, cd to selected |
+| `gs` | Alias for `git status` |
 | `ginit [name]` | Initialize git repo + create private GitHub repo via `gh` |
 | `genc` | Setup SOPS config, decrypt `.enc.*` files, install pre-commit hook |
 | `enc [files]` | Encrypt file(s), or all if no args. Skips unchanged. |
