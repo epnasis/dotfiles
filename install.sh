@@ -148,6 +148,16 @@ if command -v bat >/dev/null 2>&1; then
     echo
 fi
 
+# Setup git config (allowed_signers for SSH signing)
+info "Setting up git config..."
+mkdir -p ~/.config/git
+if [ -f "$SCRIPT_DIR/config/git/allowed_signers" ]; then
+    ln -sfv "$SCRIPT_DIR/config/git/allowed_signers" ~/.config/git/allowed_signers
+else
+    warn "allowed_signers not found in repo"
+fi
+echo
+
 # Symlink dotfiles
 info "Symlinking dotfiles..."
 for dotfile in "$SCRIPT_DIR"/.*; do

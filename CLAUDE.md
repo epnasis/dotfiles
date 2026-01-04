@@ -17,6 +17,62 @@ This ensures continuity across sessions and helps future Claude instances unders
 
 **NEVER add Claude Code marketing footers or attribution to commit messages.** Keep commits clean and professional without "Generated with Claude Code" footers, co-author tags, or similar branding.
 
+## Git Commit Signing
+
+All commits are signed using SSH keys via 1Password integration.
+
+### Configuration (in `.gitconfig`)
+
+```ini
+[user]
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5...
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+  allowedSignersFile = ~/.config/git/allowed_signers
+
+[commit]
+  gpgsign = true
+```
+
+### Allowed Signers File
+
+Located at `~/.config/git/allowed_signers`, this file maps email addresses to SSH public keys for signature verification:
+
+```
+pawel@wenda.eu ssh-ed25519 AAAAC3NzaC1lZDI1NTE5...
+```
+
+**Format:** `<email> <key-type> <public-key>`
+
+**Purpose:**
+- Enables `git log --show-signature` to verify commit signatures
+- Required for `git verify-commit` to work
+- Maps trusted identities to their signing keys
+
+### How It Works
+
+1. **Signing:** When you commit, 1Password's `op-ssh-sign` prompts for authentication (Touch ID/password) and signs the commit with your SSH key
+2. **Verification:** Git checks the signature against keys in `allowed_signers` to confirm the commit came from a trusted source
+3. **GitHub:** GitHub also verifies signatures if you've added your SSH signing key to your account
+
+### Verifying Commits
+
+```bash
+# Show signature status in log
+git log --show-signature
+
+# Verify a specific commit
+git verify-commit HEAD
+
+# Show signature in short format
+git log --format='%G? %h %s'
+# G = Good signature, N = No signature, B = Bad signature
+```
+
 ## Overview
 
 Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configurations. Includes shell utilities for streamlined repo initialization and SOPS/AGE secrets management.
@@ -28,6 +84,8 @@ Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configura
 ├── .*                    # Dotfiles symlinked to $HOME (.zshrc, .vimrc, .gitconfig, etc.)
 ├── config/
 │   ├── starship.toml     # Starship prompt configuration
+│   ├── git/
+│   │   └── allowed_signers  # SSH keys for git signature verification
 │   └── bat/
 │       ├── config        # bat syntax highlighter config
 │       └── themes/       # Catppuccin Mocha theme for bat
