@@ -7,3 +7,7 @@
 # Safe rm function (moves to trash instead of permanent delete)
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 [ -f "$DOTFILES_DIR/functions/safe_rm.zsh" ] && source "$DOTFILES_DIR/functions/safe_rm.zsh"
+
+# --- dotfiles ---
+for f in ~/.shell.d/*.sh; do [[ -f "$f" ]] && . "$f"; done
+# --- end dotfiles ---

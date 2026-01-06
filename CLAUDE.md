@@ -2,9 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Planning
+
+When done with tasks agreed in sesion propose to focus on next times you can find in @TODO.md file.
+
 ## Important: Keep This File Updated
 
 **CRITICAL INSTRUCTION:** When making changes to this repository, ALWAYS update this CLAUDE.md file to:
+
 - Document new configurations, scripts, or workflows
 - Explain design decisions and rationale behind changes
 - Record important learnings and troubleshooting insights
@@ -49,6 +54,7 @@ pawel@wenda.eu ssh-ed25519 AAAAC3NzaC1lZDI1NTE5...
 **Format:** `<email> <key-type> <public-key>`
 
 **Purpose:**
+
 - Enables `git log --show-signature` to verify commit signatures
 - Required for `git verify-commit` to work
 - Maps trusted identities to their signing keys
@@ -103,14 +109,14 @@ Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configura
 
 ## Commands
 
-| Command | Purpose |
-|---------|---------|
-| `fp` | Find git projects recursively with fzf, cd to selected |
-| `gs` | Alias for `git status` |
-| `ginit [name]` | Initialize git repo + create private GitHub repo via `gh` |
-| `genc` | Setup SOPS config, decrypt `.enc.*` files, install pre-commit hook |
-| `enc [files]` | Encrypt file(s), or all if no args. Skips unchanged. |
-| `genc_hook` | Manually reinstall the secrets sync pre-commit hook |
+| Command        | Purpose                                                            |
+| -------------- | ------------------------------------------------------------------ |
+| `fp`           | Find git projects recursively with fzf, cd to selected             |
+| `gs`           | Alias for `git status`                                             |
+| `ginit [name]` | Initialize git repo + create private GitHub repo via `gh`          |
+| `genc`         | Setup SOPS config, decrypt `.enc.*` files, install pre-commit hook |
+| `enc [files]`  | Encrypt file(s), or all if no args. Skips unchanged.               |
+| `genc_hook`    | Manually reinstall the secrets sync pre-commit hook                |
 
 ## Secrets Workflow
 
@@ -132,6 +138,7 @@ genc                    # decrypts .enc.* files + installs hook
 ```
 
 **File patterns:**
+
 - `.env` → `.enc.env` (root level)
 - `secrets/db.yaml` → `secrets/db.enc.yaml` (secrets directory)
 
@@ -150,6 +157,7 @@ genc                    # decrypts .enc.* files + installs hook
 ## Installation
 
 The `install.sh` script is now fully automated and portable. It will:
+
 - Install oh-my-zsh and required plugins
 - Check for and report missing tools
 - Set up all config files and themes
@@ -172,6 +180,7 @@ brew install starship fzf bat sops age gh nvim
 ```
 
 **Core tools:**
+
 - `oh-my-zsh` - Zsh framework (auto-installed by install.sh)
 - `starship` - Prompt theme
 - `fzf` - Fuzzy finder
@@ -182,6 +191,7 @@ brew install starship fzf bat sops age gh nvim
 - `op` - 1Password CLI (optional, for key retrieval)
 
 **Oh-my-zsh plugins** (auto-installed by install.sh):
+
 - zsh-autosuggestions
 - zsh-syntax-highlighting
 - zsh-completions
@@ -191,11 +201,13 @@ brew install starship fzf bat sops age gh nvim
 When using Homebrew-installed binaries over SSH, macOS Gatekeeper may show GUI popups asking to confirm running "downloaded from internet" apps. These popups are invisible in SSH sessions, causing commands to hang.
 
 **Symptoms:**
+
 - Shell hangs when loading (e.g., during `op completion zsh`)
 - Works fine when accessed via RDP/GUI
 - Affects tools like `op`, `gh`, or other Homebrew CLI tools
 
 **Fix (run once after installing affected tools):**
+
 ```bash
 # For specific tools that hang:
 xattr -d com.apple.quarantine $(which op)
@@ -207,6 +219,7 @@ xattr -r -d com.apple.quarantine /usr/local/bin/*     # Intel
 ```
 
 **Verify quarantine is removed:**
+
 ```bash
 xattr $(which op)
 # Should show nothing or no com.apple.quarantine
@@ -218,13 +231,13 @@ Unified Catppuccin Mocha theme across terminal tools to match neovim.
 
 ### Components
 
-| Tool | Config Location | Purpose |
-|------|-----------------|---------|
-| Starship | `~/.config/starship.toml` | Prompt with git status, python version, etc. |
-| zsh-syntax-highlighting | `~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh` | Command syntax colors |
-| fzf | `FZF_DEFAULT_OPTS` in `.zshrc` | Fuzzy finder colors |
-| bat | `~/.config/bat/config` | Syntax-highlighted cat replacement |
-| iTerm2 | Preferences → Profiles → Colors | Terminal colors |
+| Tool                    | Config Location                                       | Purpose                                      |
+| ----------------------- | ----------------------------------------------------- | -------------------------------------------- |
+| Starship                | `~/.config/starship.toml`                             | Prompt with git status, python version, etc. |
+| zsh-syntax-highlighting | `~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh` | Command syntax colors                        |
+| fzf                     | `FZF_DEFAULT_OPTS` in `.zshrc`                        | Fuzzy finder colors                          |
+| bat                     | `~/.config/bat/config`                                | Syntax-highlighted cat replacement           |
+| iTerm2                  | Preferences → Profiles → Colors                       | Terminal colors                              |
 
 ### Starship Prompt
 
@@ -281,6 +294,7 @@ brew install --cask font-jetbrains-mono-nerd-font
 ### SSH Client Environment Update
 
 The `.tmux.conf` includes:
+
 ```bash
 set-option -g update-environment "SSH_CLIENT"
 ```
@@ -288,6 +302,7 @@ set-option -g update-environment "SSH_CLIENT"
 This ensures tmux updates the `SSH_CLIENT` variable when reattaching to a session from a different SSH connection.
 
 **Why this matters:**
+
 - `SSH_CLIENT` contains connection info: `<client-ip> <client-port> <server-port>`
 - By default, tmux updates `DISPLAY`, `SSH_AUTH_SOCK`, `SSH_CONNECTION`, but NOT `SSH_CLIENT`
 - Without this setting: attach from Computer A, detach, reattach from Computer B → `SSH_CLIENT` shows stale Computer A info
@@ -298,24 +313,25 @@ This ensures tmux updates the `SSH_CLIENT` variable when reattaching to a sessio
 
 The `.zshrc` includes these plugins for enhanced functionality:
 
-| Plugin | Purpose |
-|--------|---------|
-| `git` | Git aliases and functions |
-| `brew` | Homebrew completion and aliases |
-| `common-aliases` | Useful shell aliases (note: `P` and `rm` aliases disabled) |
-| `gcloud` | Google Cloud SDK completion |
-| `gh` | GitHub CLI completion |
-| `pip` | Python pip completion |
-| `python` | Python virtual environment helpers (configured with `.venv` preference) |
-| `uv` | UV package manager support |
-| `vi-mode` | Vi keybindings in shell |
-| `z` | Jump to frequent directories |
-| `zsh-autosuggestions` | Command suggestions based on history |
-| `zsh-syntax-highlighting` | Syntax highlighting for commands |
-| `zsh-completions` | Additional completion definitions |
-| `docker` | Docker completion and aliases |
+| Plugin                    | Purpose                                                                 |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `git`                     | Git aliases and functions                                               |
+| `brew`                    | Homebrew completion and aliases                                         |
+| `common-aliases`          | Useful shell aliases (note: `P` and `rm` aliases disabled)              |
+| `gcloud`                  | Google Cloud SDK completion                                             |
+| `gh`                      | GitHub CLI completion                                                   |
+| `pip`                     | Python pip completion                                                   |
+| `python`                  | Python virtual environment helpers (configured with `.venv` preference) |
+| `uv`                      | UV package manager support                                              |
+| `vi-mode`                 | Vi keybindings in shell                                                 |
+| `z`                       | Jump to frequent directories                                            |
+| `zsh-autosuggestions`     | Command suggestions based on history                                    |
+| `zsh-syntax-highlighting` | Syntax highlighting for commands                                        |
+| `zsh-completions`         | Additional completion definitions                                       |
+| `docker`                  | Docker completion and aliases                                           |
 
 **Python plugin configuration:**
+
 ```bash
 PYTHON_VENV_NAME=".venv"
 PYTHON_VENV_NAMES=($PYTHON_VENV_NAME venv)
@@ -324,15 +340,19 @@ PYTHON_VENV_NAMES=($PYTHON_VENV_NAME venv)
 ## Custom Shell Functions
 
 ### `ghc()` - Clone GitHub Repo with FZF
+
 ```bash
 ghc
 ```
+
 Interactive repository cloner using `gh` and `fzf`. Lists your GitHub repos, lets you fuzzy-search and select, then clones the selected repo.
 
 ### `gemini()` - Gemini CLI Helper
+
 ```bash
 gemini [args]
 ```
+
 Auto-navigates to `~/gemini` when called from home directory without arguments, then runs the gemini command. Aliased as `gg`.
 
 ## Safe rm Wrapper
@@ -341,21 +361,21 @@ The `rm` command is replaced by a shell function (in `functions/safe_rm.zsh`) th
 
 ### Behavior
 
-| Context | Action |
-|---------|--------|
-| Interactive shell + non-temp files | Moves to trash |
+| Context                             | Action                                   |
+| ----------------------------------- | ---------------------------------------- |
+| Interactive shell + non-temp files  | Moves to trash                           |
 | Interactive shell + temp files only | Real `rm` (no point trashing temp files) |
-| Non-interactive (scripts) | Real `rm` (preserves script behavior) |
-| No trash command available | Real `rm` with warning |
-| `rm -f` on non-existent file | Silent skip (mimics real rm -f) |
-| `rm` on non-existent file | Error (mimics real rm) |
+| Non-interactive (scripts)           | Real `rm` (preserves script behavior)    |
+| No trash command available          | Real `rm` with warning                   |
+| `rm -f` on non-existent file        | Silent skip (mimics real rm -f)          |
+| `rm` on non-existent file           | Error (mimics real rm)                   |
 
 ### Platform Support
 
-| OS | Trash Command |
-|----|---------------|
+| OS    | Trash Command                             |
+| ----- | ----------------------------------------- |
 | macOS | `/usr/bin/trash` (built-in, Apple-signed) |
-| Linux | `trash-put` (trash-cli) or `gio trash` |
+| Linux | `trash-put` (trash-cli) or `gio trash`    |
 
 ### Design Rationale
 
@@ -384,6 +404,7 @@ sudo dnf install trash-cli
 ### File Naming: `.enc.*` vs `*.enc`
 
 We use `.enc.env` and `file.enc.yaml` (not `.env.enc` or `file.yaml.enc`) because:
+
 - SOPS auto-detects file type from the **final** extension
 - `file.enc.yaml` → SOPS sees `.yaml`, auto-detects YAML format
 - `file.yaml.enc` → SOPS sees `.enc`, defaults to JSON, fails
@@ -392,6 +413,7 @@ We use `.enc.env` and `file.enc.yaml` (not `.env.enc` or `file.yaml.enc`) becaus
 ### .sops.yaml path_regex
 
 The `path_regex` in `.sops.yaml` is a **key selector**, not a security feature:
+
 - Only used during encryption to choose which AGE key to use
 - Matched against the **input** file path (e.g., `.env` when running `sops -e .env`)
 - For decryption, SOPS reads key info from the encrypted file itself
@@ -400,10 +422,12 @@ The `path_regex` in `.sops.yaml` is a **key selector**, not a security feature:
 ### SOPS Format Normalization
 
 SOPS normalizes file formatting, which affects content comparison:
+
 - **YAML**: Normalizes to 4-space indentation (your 2-space file becomes 4-space after decrypt)
 - **dotenv**: May strip blank lines
 
 To handle this, `enc` syncs the plain file with SOPS-normalized format after encrypting:
+
 ```bash
 sops -e "$plain" > "$encrypted"
 sops -d "$encrypted" > "$plain"  # sync format
@@ -412,6 +436,7 @@ sops -d "$encrypted" > "$plain"  # sync format
 ### Pre-commit Hook Architecture
 
 The hook sources `$HOME/dotfiles/functions/repo_utils.zsh` to reuse:
+
 - `_ensure_age_key` - fetches AGE key from env, 1Password, or prompts
 - `_enc_name` / `_plain_name` - filename conversion helpers
 
@@ -419,15 +444,16 @@ This avoids code duplication and ensures consistent behavior.
 
 ### Helper Functions
 
-| Function | Purpose |
-|----------|---------|
+| Function          | Purpose                                                   |
+| ----------------- | --------------------------------------------------------- |
 | `_ensure_age_key` | Fetches AGE key from env → 1Password → interactive prompt |
-| `_enc_name` | `.env` → `.enc.env`, `file.yaml` → `file.enc.yaml` |
-| `_plain_name` | `.enc.env` → `.env`, `file.enc.yaml` → `file.yaml` |
+| `_enc_name`       | `.env` → `.enc.env`, `file.yaml` → `file.enc.yaml`        |
+| `_plain_name`     | `.enc.env` → `.env`, `file.enc.yaml` → `file.yaml`        |
 
 ### Why Content Comparison (Not Hashes)
 
 SOPS uses nonces/IVs, so re-encrypting identical content produces different ciphertext. Comparing encrypted file hashes would always show "changed". Instead:
+
 1. Decrypt the `.enc.*` file
 2. Compare decrypted content with plain file
 3. Only encrypt if content actually differs
