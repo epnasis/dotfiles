@@ -26,7 +26,8 @@ set undodir=~/.vim/undodir,.
 set dir=~/.vim/swpdir,.
 
 " allow copy/paste with macOS clipboard
-set clipboard=unnamedplus
+"set clipboard=unnamedplus
+
 "
 " Initialize pathogen to load all plugins
 execute pathogen#infect()
