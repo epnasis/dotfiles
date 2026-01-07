@@ -6,6 +6,12 @@
 
 - Files that are already lined are automaticaly skipped without info why
 - Little tick without color is not visible - maybe start with status as text (make status vs finame ident same vertically for easy read)
+- Make EDITOR env variable `nvim` only if command exist. Otherwise fallback to `vim`
+- Add colors to make selections easier - currently hard to distinguish diff
+  from new file and between files as there is more focus on decision line than
+  on the file name
+- [S]kip is odd when paired with [y]es. Maybe Skip should become [N]o and there
+  should be question to install / overwrite (if conflict)?
 
 1. Review dotfiles from other branches and plan consolidation
 
