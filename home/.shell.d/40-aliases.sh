@@ -1,6 +1,10 @@
 # General aliases
-alias vi='nvim'
-alias vim='nvim'
+
+if command -v nvim >/dev/null 2>&1; then
+    alias vi='nvim'
+    alias vim='nvim'
+fi
+
 alias lg='lazygit'
 alias rr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
 
