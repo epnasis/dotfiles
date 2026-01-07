@@ -45,14 +45,14 @@ handle_conflict() {
 
   while true; do
     echo ""
-    echo "Conflict: $name (existing file differs)"
-    printf "[S]kip / [d]iff / [f]orce / [q]uit? "
+    echo "Overwrite conflict: $name (existing file differs)"
+    echo "[N]o / [d]iff / [f]orce / [q]uit? "
     local choice
     choice=$(read_char)
     echo ""
 
     case "$choice" in
-      ""|s|S) echo "- $name (skipped)"; return 0 ;;
+      ""|n|N|s|S) echo "- $name (skipped)"; return 0 ;;
       d|D) show_diff "$dest" "$src" ;;
       f|F) ln -sfn "$src" "$dest"; echo "✓ $name (forced)"; return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
@@ -71,13 +71,15 @@ handle_new() {
   fi
 
   while true; do
-    printf "New: $name - [S]kip / [v]iew / [y]es / [a]ll / [q]uit? "
+    echo ""
+    echo "Install: $name"
+    echo "[N]o / / [y]es / [a]ll / [v]iew / [q]uit? "
     local choice
     choice=$(read_char)
     echo ""
 
     case "$choice" in
-      ""|s|S) echo "- $name (skipped)"; return 0 ;;
+      ""|n|N|s|S) echo "- $name (skipped)"; return 0 ;;
       v|V) show_file "$src" ;;
       y|Y) mkdir -p "$(dirname "$dest")"; ln -s "$src" "$dest"; echo "✓ $name"; return 0 ;;
       a|A) ALL_NEW=true; mkdir -p "$(dirname "$dest")"; ln -s "$src" "$dest"; echo "✓ $name"; return 0 ;;
