@@ -9,6 +9,16 @@ set rnu
 language messages en_US
 
 " =====================
+" Curor type per mode
+" =====================
+" Set cursor to vertical bar in Insert Mode
+let &t_SI = "\e[5 q"
+" Set cursor to block in Normal Mode
+let &t_SR = "\e[3 q"
+" Set cursor to block when leaving Insert Mode
+let &t_EI = "\e[2 q"
+
+" =====================
 " SYSTEM AGNOSTIC SETUP
 " =====================
 
