@@ -81,30 +81,42 @@ git log --format='%G? %h %s'
 
 ## Overview
 
-Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configurations. Includes shell utilities for streamlined repo initialization and SOPS/AGE secrets management.
+Personal dotfiles repository for macOS and Linux (Debian/Fedora) with modular shell configuration supporting both bash and zsh. Includes neovim, tmux, git configs, and SOPS/AGE secrets management.
 
 ## Structure
 
 ```
 ~/dotfiles/
-├── .*                    # Dotfiles symlinked to $HOME (.zshrc, .vimrc, .gitconfig, etc.)
-├── config/
-│   ├── starship.toml     # Starship prompt configuration
-│   ├── git/
-│   │   └── allowed_signers  # SSH keys for git signature verification
-│   └── bat/
-│       ├── config        # bat syntax highlighter config
-│       └── themes/       # Catppuccin Mocha theme for bat
+├── install.sh              # Interactive installer (use --all for non-interactive)
+├── home/                   # Files symlinked to $HOME (mirrors ~/ structure)
+│   ├── .vimrc, .tmux.conf, .inputrc, .editrc, .gitconfig
+│   ├── .config/
+│   │   ├── starship.toml   # Starship prompt configuration
+│   │   ├── bat/            # bat config + Catppuccin theme
+│   │   └── git/allowed_signers
+│   └── .shell.d/           # Modular shell scripts (numbered for load order)
+│       ├── 10-env.sh       # EDITOR, LANG (conditional nvim/vim)
+│       ├── 20-path.sh      # PATH modifications
+│       ├── 30-history.sh   # History settings (bash/zsh)
+│       ├── 40-aliases.sh   # General aliases
+│       ├── 45-fzf.sh       # FZF config + fp() function
+│       ├── 50-bash.sh      # Bash-specific settings
+│       ├── 50-zsh.sh       # Zsh-specific settings
+│       ├── 55-oh-my-zsh.sh # Oh-my-zsh setup (optional, skips if not installed)
+│       ├── 60-git.sh       # Git aliases + ginit, ghc functions
+│       ├── 65-linux.sh     # Linux-specific settings
+│       ├── 65-macos.sh     # macOS-specific settings
+│       ├── 70-1password.sh # 1Password CLI + SSH agent
+│       ├── 75-sops.sh      # SOPS/AGE: genc, enc, genc_hook
+│       ├── 80-safe-rm.sh   # Safe rm wrapper (trash)
+│       ├── 85-completions.sh
+│       ├── 90-starship.sh  # Starship prompt init
+│       ├── 95-gemini.sh    # Gemini CLI helper
+│       └── 99-tmux-ssh.sh  # Auto-start tmux on SSH
 ├── zsh/
-│   └── catppuccin_mocha-zsh-syntax-highlighting.zsh  # Zsh syntax theme
-├── functions/
-│   ├── repo_utils.zsh    # Shell functions: fp, gs, ginit, genc, enc, genc_hook
-│   └── safe_rm.zsh       # Safe rm wrapper (moves to trash in interactive shells)
-├── templates/
-│   └── gitignore_default # Template for new repos (includes SOPS patterns)
-├── .age_public_key       # AGE public key for SOPS encryption
-├── .age_key_ref          # 1Password reference to AGE private key
-└── install.sh            # Comprehensive setup script (installs dependencies + symlinks)
+│   └── catppuccin_mocha-zsh-syntax-highlighting.zsh
+├── .age_public_key         # AGE public key for SOPS encryption
+└── .age_key_ref            # 1Password reference to AGE private key
 ```
 
 ## Commands
@@ -114,9 +126,11 @@ Personal dotfiles repository for macOS with zsh, neovim, tmux, and git configura
 | `fp`           | Find git projects recursively with fzf, cd to selected             |
 | `gs`           | Alias for `git status`                                             |
 | `ginit [name]` | Initialize git repo + create private GitHub repo via `gh`          |
+| `ghc`          | Clone a repo from your GitHub account using fzf                    |
 | `genc`         | Setup SOPS config, decrypt `.enc.*` files, install pre-commit hook |
 | `enc [files]`  | Encrypt file(s), or all if no args. Skips unchanged.               |
 | `genc_hook`    | Manually reinstall the secrets sync pre-commit hook                |
+| `gg` / `gemini`| Gemini CLI helper (cd to ~/gemini if in home)                      |
 
 ## Secrets Workflow
 
@@ -152,49 +166,89 @@ genc                    # decrypts .enc.* files + installs hook
 
 3. **1Password integration** - Private AGE key stored in 1Password, referenced via `op://` URI in `.age_key_ref`. Avoids storing private key on disk.
 
-4. **Template-based gitignore** - `ginit` copies `templates/gitignore_default` which already includes SOPS patterns, avoiding duplication in `genc`.
+4. **Inline gitignore template** - `ginit` uses a heredoc function `_gitignore_default()` in `60-git.sh` for the standard gitignore. SOPS patterns are added separately by `genc`.
+
+5. **Modular shell.d architecture** - Each feature in its own numbered file with guards. Files load in numeric order, skip gracefully if dependencies missing.
+
+## Shell.d Architecture
+
+Each file in `~/.shell.d/` is sourced in numeric order. Files use guards to skip if:
+- Wrong shell (bash vs zsh)
+- Wrong platform (macOS vs Linux)
+- Required tool not installed
+
+Example guard patterns:
+```bash
+# Skip if not on macOS
+[[ "$(uname)" != "Darwin" ]] && return
+
+# Skip if tool not installed
+command -v fzf >/dev/null || return
+
+# Zsh-only
+[[ -z "$ZSH_VERSION" ]] && return
+```
+
+This allows the same dotfiles to work across different machines with different tools installed.
 
 ## Installation
 
-The `install.sh` script is now fully automated and portable. It will:
-
-- Install oh-my-zsh and required plugins
-- Check for and report missing tools
-- Set up all config files and themes
-- Symlink dotfiles to $HOME
-
 ```bash
 cd ~/dotfiles
-./install.sh            # Automated setup - installs dependencies + symlinks dotfiles
-source ~/.zshrc         # or restart shell
+
+# Interactive mode - prompts for each file
+./install.sh
+
+# Non-interactive - install all files without prompts
+./install.sh --all
 ```
 
-The script will prompt you to install any missing tools with specific brew commands.
+The script will:
+1. Symlink files from `home/` to `~/`
+2. Append shell.d sourcing block to `~/.bashrc` and `~/.zshrc` (idempotent)
+
+**Symbols:** `✓` installed, `·` already linked, `-` skipped
+
+**Options for new files:** `[N]o / [y]es / [a]ll / [v]iew / [q]uit`
+**Options for conflicts:** `[N]o / [d]iff / [f]orce / [q]uit`
+
+The RC append block:
+```bash
+# --- dotfiles ---
+for f in ~/.shell.d/*.sh; do [[ -f "$f" ]] && . "$f"; done
+# --- end dotfiles ---
+```
 
 ## Dependencies
 
-All dependencies are checked by `install.sh`. Install missing ones with:
+Install tools with your package manager:
 
 ```bash
+# macOS
 brew install starship fzf bat sops age gh nvim
+
+# Debian/Ubuntu
+apt install fzf bat
+# Others: starship, sops, age, gh, nvim via GitHub releases or other sources
+
+# Fedora
+dnf install fzf bat
 ```
 
 **Core tools:**
 
-- `oh-my-zsh` - Zsh framework (auto-installed by install.sh)
 - `starship` - Prompt theme
 - `fzf` - Fuzzy finder
 - `bat` - Cat replacement with syntax highlighting
-- `sops` and `age` - Secrets encryption
+- `sops` and `age` - Secrets encryption (optional)
 - `gh` - GitHub CLI for `ginit`
-- `nvim` - Neovim editor
+- `nvim` - Neovim editor (EDITOR falls back to vim if not installed)
 - `op` - 1Password CLI (optional, for key retrieval)
 
-**Oh-my-zsh plugins** (auto-installed by install.sh):
+**Optional (zsh only):**
 
-- zsh-autosuggestions
-- zsh-syntax-highlighting
-- zsh-completions
+- `oh-my-zsh` - Zsh framework (55-oh-my-zsh.sh skips if not installed)
+- zsh-autosuggestions, zsh-syntax-highlighting, zsh-completions
 
 ## macOS Gatekeeper Quarantine Fix
 
@@ -234,8 +288,8 @@ Unified Catppuccin Mocha theme across terminal tools to match neovim.
 | Tool                    | Config Location                                       | Purpose                                      |
 | ----------------------- | ----------------------------------------------------- | -------------------------------------------- |
 | Starship                | `~/.config/starship.toml`                             | Prompt with git status, python version, etc. |
-| zsh-syntax-highlighting | `~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh` | Command syntax colors                        |
-| fzf                     | `FZF_DEFAULT_OPTS` in `.zshrc`                        | Fuzzy finder colors                          |
+| zsh-syntax-highlighting | `~/dotfiles/zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh` | Command syntax colors                  |
+| fzf                     | `FZF_DEFAULT_OPTS` in `~/.shell.d/45-fzf.sh`          | Fuzzy finder colors                          |
 | bat                     | `~/.config/bat/config`                                | Syntax-highlighted cat replacement           |
 | iTerm2                  | Preferences → Profiles → Colors                       | Terminal colors                              |
 
@@ -277,7 +331,7 @@ brew install starship fzf bat
 brew install --cask font-jetbrains-mono-nerd-font
 ```
 
-All theme files and configs are now included in the repo under `config/` and `zsh/` directories.
+All theme files and configs are now included in the repo under `home/.config/` and `zsh/` directories.
 
 ### Font Requirements
 
@@ -311,7 +365,7 @@ This ensures tmux updates the `SSH_CLIENT` variable when reattaching to a sessio
 
 ## Oh-My-Zsh Plugins
 
-The `.zshrc` includes these plugins for enhanced functionality:
+Configured in `~/.shell.d/55-oh-my-zsh.sh` (only loads if oh-my-zsh is installed):
 
 | Plugin                    | Purpose                                                                 |
 | ------------------------- | ----------------------------------------------------------------------- |
@@ -357,7 +411,7 @@ Auto-navigates to `~/gemini` when called from home directory without arguments, 
 
 ## Safe rm Wrapper
 
-The `rm` command is replaced by a shell function (in `functions/safe_rm.zsh`) that moves files to trash instead of permanently deleting them.
+The `rm` command is replaced by a shell function (in `~/.shell.d/80-safe-rm.sh`) that moves files to trash instead of permanently deleting them.
 
 ### Behavior
 
@@ -435,12 +489,12 @@ sops -d "$encrypted" > "$plain"  # sync format
 
 ### Pre-commit Hook Architecture
 
-The hook sources `$HOME/dotfiles/functions/repo_utils.zsh` to reuse:
+The hook sources `~/.shell.d/*.sh` to access helper functions:
 
 - `_ensure_age_key` - fetches AGE key from env, 1Password, or prompts
 - `_enc_name` / `_plain_name` - filename conversion helpers
 
-This avoids code duplication and ensures consistent behavior.
+This avoids code duplication and ensures consistent behavior between shell functions and the hook.
 
 ### Helper Functions
 
