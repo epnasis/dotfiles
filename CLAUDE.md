@@ -94,6 +94,7 @@ Personal dotfiles repository for macOS and Linux (Debian/Fedora) with modular sh
 │   │   ├── starship.toml   # Starship prompt configuration
 │   │   ├── bat/            # bat config + Catppuccin theme
 │   │   └── git/allowed_signers
+│   ├── .zshrc              # Minimal loader + .zshrc.local hook
 │   └── .shell.d/           # Modular shell scripts (numbered for load order)
 │       ├── 10-env.sh       # EDITOR, LANG (conditional nvim/vim)
 │       ├── 20-path.sh      # PATH modifications
@@ -102,10 +103,11 @@ Personal dotfiles repository for macOS and Linux (Debian/Fedora) with modular sh
 │       ├── 45-fzf.sh       # FZF config + fp() function
 │       ├── 50-bash.sh      # Bash-specific settings
 │       ├── 50-zsh.sh       # Zsh-specific settings
-│       ├── 55-oh-my-zsh.sh # Oh-my-zsh setup (optional, skips if not installed)
+│       ├── 55-oh-my-zsh.sh # Oh-my-zsh setup (optimized, optional)
 │       ├── 60-git.sh       # Git aliases + ginit, ghc functions
 │       ├── 65-linux.sh     # Linux-specific settings
 │       ├── 65-macos.sh     # macOS-specific settings
+│       ├── 66-gcloud.sh    # Google Cloud SDK (auto-detects location)
 │       ├── 70-1password.sh # 1Password CLI + SSH agent
 │       ├── 75-sops.sh      # SOPS/AGE: genc, enc, genc_hook
 │       ├── 80-safe-rm.sh   # Safe rm wrapper (trash)
@@ -204,20 +206,35 @@ cd ~/dotfiles
 ```
 
 The script will:
-1. Symlink files from `home/` to `~/`
-2. Append shell.d sourcing block to `~/.bashrc` and `~/.zshrc` (idempotent)
+1. Symlink files from `home/` to `~/` (including `.zshrc`)
+2. For `.bashrc`: append shell.d sourcing block if not present (fallback for non-symlinked setups)
 
 **Symbols:** `✓` installed, `·` already linked, `-` skipped
 
 **Options for new files:** `[N]o / [y]es / [a]ll / [v]iew / [q]uit`
 **Options for conflicts:** `[N]o / [d]iff / [f]orce / [q]uit`
 
-The RC append block:
+The `.zshrc` from dotfiles:
 ```bash
 # --- dotfiles ---
 for f in ~/.shell.d/*.sh; do [[ -f "$f" ]] && . "$f"; done
 # --- end dotfiles ---
+
+# Machine-specific config (not in dotfiles)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 ```
+
+### Machine-Specific Configuration
+
+For machine-specific settings (cloud VMs, edge devices, etc.), create `~/.zshrc.local`:
+
+```bash
+# Example ~/.zshrc.local on a cloud VM
+export CLOUD_PROJECT="my-project"
+export SOME_LOCAL_VAR="value"
+```
+
+This file is not managed by dotfiles and won't be committed.
 
 ## Dependencies
 
@@ -363,28 +380,68 @@ This ensures tmux updates the `SSH_CLIENT` variable when reattaching to a sessio
 - With this setting: `SSH_CLIENT` reflects the current connection
 - Benefits: scripts that check connection source get accurate info, security logging works correctly, useful when connecting from multiple locations
 
+## Shell Startup Optimization
+
+The oh-my-zsh setup in `55-oh-my-zsh.sh` is optimized for fast startup (~300ms vs ~550ms default).
+
+### Optimization Flags
+
+```bash
+DISABLE_AUTO_UPDATE="true"      # Skip update checks
+DISABLE_MAGIC_FUNCTIONS="true"  # Faster paste handling
+DISABLE_COMPFIX="true"          # Skip compaudit security checks
+```
+
+### Key Learnings
+
+1. **compinit is expensive** - The completion system initialization (`compinit`) takes ~250ms and dominates startup time.
+
+2. **oh-my-zsh always runs compinit** - Despite `skip_global_compinit`, oh-my-zsh runs its own compinit internally. Don't duplicate it.
+
+3. **Plugins add up** - Each plugin adds load time. Only enable what you actively use.
+
+4. **Extended glob for caching** - The common `compinit` caching pattern using `~/.zcompdump(#qN.mh+24)` requires `setopt extended_glob` to work.
+
+5. **gcloud completion calls compinit** - Google Cloud SDK's `completion.zsh.inc` has a guard that checks for `compdef` function. If you run compinit before sourcing it, gcloud skips its own compinit.
+
+### Profiling Shell Startup
+
+```bash
+# Add to top of ~/.zshrc temporarily
+zmodload zsh/zprof
+
+# Add to bottom of ~/.zshrc temporarily
+zprof
+
+# Then open new shell to see timing breakdown
+```
+
+### Current Plugin Selection
+
+Minimal set for fast startup. Uncomment others in `55-oh-my-zsh.sh` as needed.
+
 ## Oh-My-Zsh Plugins
 
 Configured in `~/.shell.d/55-oh-my-zsh.sh` (only loads if oh-my-zsh is installed):
 
-| Plugin                    | Purpose                                                                 |
-| ------------------------- | ----------------------------------------------------------------------- |
-| `git`                     | Git aliases and functions                                               |
-| `brew`                    | Homebrew completion and aliases                                         |
-| `common-aliases`          | Useful shell aliases (note: `P` and `rm` aliases disabled)              |
-| `gcloud`                  | Google Cloud SDK completion                                             |
-| `gh`                      | GitHub CLI completion                                                   |
-| `pip`                     | Python pip completion                                                   |
-| `python`                  | Python virtual environment helpers (configured with `.venv` preference) |
-| `uv`                      | UV package manager support                                              |
-| `vi-mode`                 | Vi keybindings in shell                                                 |
-| `z`                       | Jump to frequent directories                                            |
-| `zsh-autosuggestions`     | Command suggestions based on history                                    |
-| `zsh-syntax-highlighting` | Syntax highlighting for commands                                        |
-| `zsh-completions`         | Additional completion definitions                                       |
-| `docker`                  | Docker completion and aliases                                           |
+| Plugin                    | Status   | Purpose                                                    |
+| ------------------------- | -------- | ---------------------------------------------------------- |
+| `git`                     | enabled  | Git aliases and functions                                  |
+| `common-aliases`          | enabled  | Useful shell aliases (`P` and `rm` aliases disabled)       |
+| `zsh-autosuggestions`     | enabled  | Command suggestions based on history                       |
+| `zsh-syntax-highlighting` | enabled  | Syntax highlighting for commands                           |
+| `zsh-completions`         | enabled  | Additional completion definitions                          |
+| `brew`                    | disabled | Homebrew completion (adds ~20ms)                           |
+| `gcloud`                  | disabled | Handled by `66-gcloud.sh` instead                          |
+| `gh`                      | disabled | GitHub CLI completion                                      |
+| `pip`                     | disabled | Python pip completion                                      |
+| `python`                  | disabled | Python venv helpers                                        |
+| `uv`                      | disabled | UV package manager                                         |
+| `vi-mode`                 | disabled | Vi keybindings in shell                                    |
+| `z`                       | disabled | Directory jumping                                          |
+| `docker`                  | disabled | Docker completion                                          |
 
-**Python plugin configuration:**
+**Python plugin configuration** (in `55-oh-my-zsh.sh`):
 
 ```bash
 PYTHON_VENV_NAME=".venv"

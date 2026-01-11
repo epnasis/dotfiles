@@ -2,25 +2,35 @@
 [[ -z "$ZSH_VERSION" ]] && return
 [[ ! -d "$HOME/.oh-my-zsh" ]] && return
 
+# Optimizations
+DISABLE_AUTO_UPDATE="true"
+DISABLE_MAGIC_FUNCTIONS="true"
+DISABLE_COMPFIX="true"
+
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
 ENABLE_CORRECTION="false"
+COMPLETION_WAITING_DOTS="true"
+
+# Python plugin settings
+PYTHON_VENV_NAME=".venv"
+PYTHON_VENV_NAMES=($PYTHON_VENV_NAME venv)
 
 plugins=(
   git
-  brew
+  #brew
   common-aliases
-  gcloud
-  gh
-  pip
-  python
-  uv
-  vi-mode
-  z
+  #gcloud
+  #gh
+  #pip
+  #python
+  #uv
+  #vi-mode
+  #z
   zsh-autosuggestions
   zsh-syntax-highlighting
   zsh-completions
-  docker
+  #docker
 )
 
 source "$ZSH/oh-my-zsh.sh"
