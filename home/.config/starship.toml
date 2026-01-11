@@ -3,6 +3,7 @@
 palette = "catppuccin_mocha"
 
 format = """
+$hostname\
 $directory\
 $git_branch\
 $git_status\
@@ -20,6 +21,13 @@ style = "bold lavender"
 truncation_length = 4
 truncate_to_repo = false
 truncation_symbol = "…/" # Symbol to show when path is cut off
+
+[hostname]
+ssh_only = true
+format = "[$ssh_symbol$hostname]($style) in "
+ssh_symbol = "@"
+style = "bold mauve"                          # Recommended for SSH context
+disabled = false
 
 [git_branch]
 symbol = " "
