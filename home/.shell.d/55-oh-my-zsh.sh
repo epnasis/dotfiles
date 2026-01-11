@@ -25,7 +25,7 @@ plugins=(
   #pip
   #python
   #uv
-  #vi-mode
+  vi-mode
   #z
   zsh-autosuggestions
   zsh-syntax-highlighting
