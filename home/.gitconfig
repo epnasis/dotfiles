@@ -16,8 +16,8 @@
 
 [gpg "ssh"]
   program = "ssh-keygen"
-	; allowedSignersFile = ~/.config/git/allowed_signers
-	;
+  allowedSignersFile = ~/.config/git/allowed_signers
+
 [commit]
   gpgsign = true
 
