@@ -9,13 +9,13 @@
 [user]
   email = pawel@wenda.eu
   name = Pawel Wenda
-	signingkey = /Users/epnasis/.ssh/git_signing_key.pub
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICwmhfA/Q0IhQFo48wF34Fe7CzXJV0MkwbODkG0+s/u3
 
 [gpg]
   format = ssh
 
-; [gpg "ssh"]
-;   program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+[gpg "ssh"]
+  program = "ssh-keygen"
 	; allowedSignersFile = ~/.config/git/allowed_signers
 	;
 [commit]
