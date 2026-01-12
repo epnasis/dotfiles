@@ -1,25 +1,6 @@
 # Git configuration
 alias gs='git status'
 
-# Auto-configure Git signing key based on current SSH agent
-SIGNING_KEY_PATTERN="Github SSH key"
-
-if ssh-add -L >/dev/null 2>&1; then
-	# Try to find the key matching the pattern
-	CURRENT_SSH_KEY=$(ssh-add -L | grep "$SIGNING_KEY_PATTERN" | head -n 1 | awk '{print $1 " " $2}')
-
-	# Fallback to first key only if pattern match fails
-	if [ -z "$CURRENT_SSH_KEY" ]; then
-		CURRENT_SSH_KEY=$(ssh-add -L | head -n 1 | awk '{print $1 " " $2}')
-	fi
-
-	if [ -n "$CURRENT_SSH_KEY" ]; then
-		echo "$CURRENT_SSH_KEY" >~/.ssh/git_signing_key.pub
-		chmod 600 ~/.ssh/git_signing_key.pub
-		git config --global user.signingkey ~/.ssh/git_signing_key.pub
-	fi
-fi
-
 # Clone a repository from your gh repo list using fzf
 ghc() {
   command -v gh >/dev/null || { echo "gh not installed"; return 1; }
