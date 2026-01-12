@@ -49,8 +49,7 @@ if has("termguicolors")
 	set termguicolors
 endif
 set background=dark				" make it fit the night! :)
-"colorscheme solarized				" choose colors
-colorscheme cobalt2				" choose colors
+colorscheme catppuccin_mocha
 set laststatus=2				" allows show status line
 
 " Airline theme
