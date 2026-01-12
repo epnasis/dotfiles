@@ -2,10 +2,12 @@
 
 # Homebrew (macOS)
 [[ -d /opt/homebrew/bin ]] && export PATH="/opt/homebrew/bin:$PATH"
+[[ -d $HOME/homebrew/bin ]] && export PATH="$HOME/homebrew/bin:$PATH"
 [[ -d /usr/local/bin ]] && export PATH="/usr/local/bin:$PATH"
 
 # Local bin
 [[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
+[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
 
 # Ruby (macOS)
 if [[ -d /opt/homebrew/opt/ruby/bin ]]; then
