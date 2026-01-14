@@ -105,7 +105,53 @@ EOF
   echo "✓ Updated $rc"
 }
 
+handle_broken_link() {
+  local link="$1"
+  while true; do
+    echo ""
+    echo "Broken symlink: $link"
+    echo "Target: $(readlink "$link")"
+    echo "[D]elete / [s]kip / [q]uit?"
+    local choice
+    choice=$(read_char)
+
+    case "$choice" in
+      d|D) rm "$link"; echo "✓ Deleted"; return 0 ;;
+      s|S|""|n|N) echo "- Skipped"; return 0 ;;
+      q|Q) echo "Quit."; exit 1 ;;
+    esac
+  done
+}
+
+check_broken_links() {
+  echo "--- Checking for broken symlinks in managed directories ---"
+  # Scan directories that exist in our dotfiles source
+  find . -type d | while read -r rel_dir; do
+    rel_dir="${rel_dir#./}"
+    local target_dir
+    if [[ -z "$rel_dir" ]]; then
+      target_dir="$HOME"
+    else
+      target_dir="$HOME/$rel_dir"
+    fi
+
+    [[ -d "$target_dir" ]] || continue
+
+    # Find broken symlinks in the target directory (non-recursive)
+    # Using a process substitution loop to handle paths safely
+    while IFS= read -r link; do
+      if [[ ! -e "$link" ]]; then
+        handle_broken_link "$link"
+      fi
+    done < <(find "$target_dir" -maxdepth 1 -type l)
+  done
+  echo "--- Done checking broken links ---"
+  echo ""
+}
+
 cd "$DOTFILES_DIR/home"
+
+check_broken_links
 
 find . -type f | sort | while read -r file; do
   file="${file#./}"
