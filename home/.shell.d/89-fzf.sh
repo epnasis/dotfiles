@@ -10,9 +10,9 @@ export FZF_DEFAULT_OPTS=" \
 --bind 'ctrl-f:page-down,ctrl-b:page-up' \
 --reverse --multi"
 
-# Source fzf scripts
-[[ -n "$ZSH_VERSION" && -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
-[[ -n "$BASH_VERSION" && -f ~/.fzf.bash ]] && source ~/.fzf.bash
+# Source fzf integrations
+[[ -n "$ZSH_VERSION" ]] && source <(fzf --zsh)
+[[ -n "$BASH_VERSION" ]] && source <(fzf --bash)
 
 # Find git projects recursively and cd to selected one
 fp() {
