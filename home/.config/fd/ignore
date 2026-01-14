@@ -1,0 +1,11 @@
+Library/
+.cache/
+.Trash/
+Pictures/Photos Library.photoslibrary/
+
+# Ignore all hidden directories
+.*/
+
+# Whitelist specific hidden directories
+!.config/
+!.shell.d/
