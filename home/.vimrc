@@ -2,6 +2,14 @@
 " NEW
 " =====================
 
+let mapleader=" "
+
+" Enable project drawer mode by default
+let g:fern#default_drawer_width = 30
+
+" Map toggle
+nnoremap <silent> <Leader>f :Fern . -drawer -reveal=% -toggle<CR>
+
 " add line numbers
 set nu
 set rnu
@@ -39,9 +47,6 @@ set dir=~/.vim/swpdir,.
 "set clipboard=unnamedplus
 
 "
-" Initialize pathogen to load all plugins
-execute pathogen#infect()
-
 " Look & feel
 syntax on
 set t_Co=256
@@ -53,7 +58,6 @@ colorscheme catppuccin_mocha
 set laststatus=2				" allows show status line
 
 " Airline theme
-let g:airline_theme='murmur'
 let g:airline_powerline_fonts = 1
 " let g:airline#extensions#whitespace#enabled = 0
 " let g:airline_symbols = {}
@@ -141,7 +145,6 @@ let g:terraform_fmt_on_save=1
 " ====================
 " Note: norec - means non-recursive mapping
 "
-let mapleader=" "
 
 " Search
 " nnoremap / /\v
