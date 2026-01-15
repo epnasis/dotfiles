@@ -8,3 +8,5 @@ fi
 export LANG=en_US.UTF-8
 
 export UV_PYTHON_PREFERENCE="only-managed"
+
+export EZA_CONFIG_DIR=$HOME/.config/eza
