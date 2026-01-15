@@ -32,6 +32,12 @@ show_file() {
 
 show_diff() {
   local file1="$1" file2="$2"
+  
+  if command -v realpath >/dev/null; then
+    file1=$(realpath "$file1")
+    file2=$(realpath "$file2")
+  fi
+
   echo ""
   if command -v git >/dev/null; then
     git diff --no-index --color-words "$file1" "$file2" || true
