@@ -46,6 +46,20 @@ show_diff() {
   fi
 }
 
+BACKUP_DIR="$DOTFILES_DIR/backups"
+
+backup_file() {
+  local file="$1"
+  local name="$2"
+  local timestamp
+  timestamp=$(date +"%Y%m%d_%H%M%S")
+  local backup_path="$BACKUP_DIR/$name.$timestamp"
+
+  mkdir -p "$(dirname "$backup_path")"
+  mv "$file" "$backup_path"
+  echo "  ↳ Backed up to backups/$name.$timestamp"
+}
+
 handle_conflict() {
   local src="$1" dest="$2" name="$3"
 
@@ -60,7 +74,11 @@ handle_conflict() {
     case "$choice" in
       ""|n|N|s|S) echo "- $name (skipped)"; return 0 ;;
       d|D) show_diff "$dest" "$src" ;;
-      f|F) ln -sfn "$src" "$dest"; echo "✓ $name (forced)"; return 0 ;;
+      f|F)
+        backup_file "$dest" "$name"
+        ln -sfn "$src" "$dest"
+        echo "✓ $name (forced)"; return 0
+        ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
