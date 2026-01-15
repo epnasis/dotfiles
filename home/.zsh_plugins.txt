@@ -8,4 +8,5 @@ ohmyzsh/ohmyzsh path:plugins/vi-mode
 # Community Plugins
 zsh-users/zsh-completions
 zsh-users/zsh-autosuggestions
+catppuccin/zsh-syntax-highlighting path:themes/catppuccin_mocha-zsh-syntax-highlighting.zsh
 zsh-users/zsh-syntax-highlighting

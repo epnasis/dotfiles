@@ -25,10 +25,3 @@ antidote load "${ZDOTDIR:-$HOME}/.zsh_plugins.txt"
 unalias 'P' 2>/dev/null   # pygmentize dependency
 unalias 'rm' 2>/dev/null  # we use safe_rm function
 
-# Catppuccin syntax highlighting theme
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-if [[ -f "$DOTFILES_DIR/zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh" ]]; then
-  source "$DOTFILES_DIR/zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh"
-elif [[ -f "$HOME/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh" ]]; then
-  source "$HOME/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh"
-fi
