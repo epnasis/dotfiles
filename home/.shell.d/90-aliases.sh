@@ -23,3 +23,26 @@ alias pvd='deactivate'
 
 # Shell config
 alias zshconfig="vi ~/.zshrc; source ~/.zshrc"
+
+# Gemini CLI helper
+if command -v gemini >/dev/null; then
+  unalias gg 2>/dev/null
+  function gg {
+    if [[ "$PWD" == "$HOME" && "$#" -eq 0 ]]; then
+      local gemini_dir="$HOME/gemini"
+      if [[ ! -d "$gemini_dir" ]]; then
+        printf "Directory %s does not exist. Create it? [y/N] " "$gemini_dir"
+        local response
+        read -r response
+        if [[ "$response" =~ ^[Yy] ]]; then
+          mkdir -p "$gemini_dir"
+        fi
+      fi
+      
+      if [[ -d "$gemini_dir" ]]; then
+        cd "$gemini_dir" || return
+      fi
+    fi
+    gemini "$@"
+  }
+fi
