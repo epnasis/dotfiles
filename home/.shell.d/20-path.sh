@@ -11,17 +11,14 @@
 
 # Ruby (macOS)
 if [[ -d /opt/homebrew/opt/ruby/bin ]]; then
-  export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+	export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 elif [[ -d /usr/local/opt/ruby/bin ]]; then
-  export PATH="/usr/local/opt/ruby/bin:$PATH"
+	export PATH="/usr/local/opt/ruby/bin:$PATH"
 fi
 
 # Python (macOS Homebrew)
 if [[ -d /opt/homebrew/opt/python/libexec/bin ]]; then
-  export PATH="/opt/homebrew/opt/python/libexec/bin:$PATH"
+	export PATH="/opt/homebrew/opt/python/libexec/bin:$PATH"
 elif [[ -d /usr/local/opt/python/libexec/bin ]]; then
-  export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+	export PATH="/usr/local/opt/python/libexec/bin:$PATH"
 fi
-
-# Windsurf/Codeium
-[[ -d "$HOME/.codeium/windsurf/bin" ]] && export PATH="$HOME/.codeium/windsurf/bin:$PATH"
