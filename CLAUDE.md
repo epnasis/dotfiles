@@ -226,10 +226,42 @@ When given file arguments, behavior depends on location:
 
 After adopting files, a reminder prompts to commit the changes.
 
-**Symbols:** `✓` installed, `·` already linked, `-` skipped
+### Output Format
 
-**Options for new files:** `[N]o / [y]es / [a]ll / [v]iew / [q]uit`
-**Options for conflicts:** `[N]o / [d]iff / [f]orce / [q]uit`
+The installer uses colored, right-aligned status verbs for scannable output:
+
+```
+Installing dotfiles...
+      Linked  .vimrc
+      Exists  .tmux.conf (already linked)
+     Skipped  .gitconfig
+      Forced  .zshrc → backed up
+
+────────────────────────────────────────
+Done: 2 linked • 1 existed • 1 skipped
+```
+
+| Status | Color | Meaning |
+|--------|-------|---------|
+| `Linked` | green | New symlink created |
+| `Exists` | dim | Already correctly linked |
+| `Skipped` | yellow | User declined |
+| `Forced` | green | Overwrote after backup |
+| `Adopted` | green | Moved to dotfiles + linked |
+| `Deleted` | yellow | Broken link removed |
+
+Interactive prompts use box-drawing for clarity:
+
+```
+┌─ Install: .config/starship.toml
+│  New file, not yet in your home directory
+│
+│  [y]es  [n]o  [v]iew  [a]ll  [q]uit
+└─ Choice: _
+```
+
+**Options for new files:** `[y]es  [n]o  [v]iew  [a]ll  [q]uit`
+**Options for conflicts:** `[d]iff  [f]orce  [s]kip  [q]uit`
 
 The `.zshrc` from dotfiles:
 ```bash

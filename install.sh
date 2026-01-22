@@ -7,6 +7,73 @@ ALL_NEW=false
 FILE_ARGS=()
 ADOPTED_FILES=()
 
+# Summary counters
+COUNT_LINKED=0
+COUNT_EXISTS=0
+COUNT_SKIPPED=0
+COUNT_FORCED=0
+COUNT_ADOPTED=0
+COUNT_DELETED=0
+
+# Colors (disabled if not a terminal)
+if [[ -t 1 ]]; then
+  GREEN=$'\e[32m'
+  YELLOW=$'\e[33m'
+  RED=$'\e[31m'
+  CYAN=$'\e[36m'
+  DIM=$'\e[2m'
+  BOLD=$'\e[1m'
+  RESET=$'\e[0m'
+else
+  GREEN="" YELLOW="" RED="" CYAN="" DIM="" BOLD="" RESET=""
+fi
+
+# Output helpers — right-aligned 12-char status column
+status() {
+  local color="$1" verb="$2" file="$3" note="${4:-}"
+  printf "%s%12s%s  %s%s%s" "$color" "$verb" "$RESET" "$CYAN" "$file" "$RESET"
+  [[ -n "$note" ]] && printf " %s%s%s" "$DIM" "$note" "$RESET"
+  printf "\n"
+}
+
+section() {
+  echo ""
+  echo "${BOLD}$1${RESET}"
+}
+
+prompt_box() {
+  local title="$1" desc="$2" options="$3"
+  echo ""
+  echo "┌─ ${BOLD}$title${RESET}"
+  [[ -n "$desc" ]] && echo "│  ${DIM}$desc${RESET}"
+  echo "│"
+  echo "│  $options"
+  printf "└─ Choice: "
+}
+
+summary() {
+  local parts=()
+  [[ $COUNT_LINKED -gt 0 ]] && parts+=("${GREEN}$COUNT_LINKED linked${RESET}")
+  [[ $COUNT_ADOPTED -gt 0 ]] && parts+=("${GREEN}$COUNT_ADOPTED adopted${RESET}")
+  [[ $COUNT_EXISTS -gt 0 ]] && parts+=("${DIM}$COUNT_EXISTS existed${RESET}")
+  [[ $COUNT_SKIPPED -gt 0 ]] && parts+=("${YELLOW}$COUNT_SKIPPED skipped${RESET}")
+  [[ $COUNT_FORCED -gt 0 ]] && parts+=("${GREEN}$COUNT_FORCED forced${RESET}")
+  [[ $COUNT_DELETED -gt 0 ]] && parts+=("${YELLOW}$COUNT_DELETED deleted${RESET}")
+
+  if [[ ${#parts[@]} -gt 0 ]]; then
+    echo ""
+    echo "────────────────────────────────────────"
+    printf "Done: "
+    local first=true
+    for part in "${parts[@]}"; do
+      $first || printf " ${DIM}•${RESET} "
+      printf "%s" "$part"
+      first=false
+    done
+    echo ""
+  fi
+}
+
 usage() {
   cat <<EOF
 Usage: $(basename "$0") [OPTIONS] [FILE...]
@@ -30,8 +97,6 @@ Examples:
   $(basename "$0") --all              # Non-interactive install all
   $(basename "$0") home/.vimrc        # Install specific dotfile
   $(basename "$0") ~/.config/app.conf # Adopt file into dotfiles
-
-Symbols: ✓ installed  · already linked  - skipped
 EOF
 }
 
@@ -90,27 +155,25 @@ backup_file() {
 
   mkdir -p "$(dirname "$backup_path")"
   mv "$file" "$backup_path"
-  echo "  ↳ Backed up to backups/$name.$timestamp"
+  printf "             %s↳ backed up to backups/%s%s\n" "$DIM" "$name.$timestamp" "$RESET"
 }
 
 handle_conflict() {
   local src="$1" dest="$2" name="$3"
 
   while true; do
-    echo ""
-    echo "Overwrite conflict: $name (existing file differs)"
-    echo "[N]o / [d]iff / [f]orce / [q]uit? "
+    prompt_box "Conflict: $name" "Existing file differs from dotfiles version" "[d]iff  [f]orce  [s]kip  [q]uit"
     local choice
     choice=$(read_char)
     echo ""
 
     case "$choice" in
-      ""|n|N|s|S) echo "- $name (skipped)"; return 0 ;;
+      ""|n|N|s|S) status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       d|D) show_diff "$dest" "$src" ;;
       f|F)
         backup_file "$dest" "$name"
         ln -sfn "$src" "$dest"
-        echo "✓ $name (forced)"; return 0
+        status "$GREEN" "Forced" "$name"; ((COUNT_FORCED++)); return 0
         ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
@@ -123,23 +186,35 @@ handle_new() {
   if $ALL_NEW; then
     mkdir -p "$(dirname "$dest")"
     ln -s "$src" "$dest"
-    echo "✓ $name"
+    status "$GREEN" "Linked" "$name"
+    ((COUNT_LINKED++))
     return 0
   fi
 
   while true; do
-    echo ""
-    echo "Install: $name"
-    echo "[N]o / / [y]es / [a]ll / [v]iew / [q]uit? "
+    prompt_box "Install: $name" "New file, not yet in your home directory" "[y]es  [n]o  [v]iew  [a]ll  [q]uit"
     local choice
     choice=$(read_char)
     echo ""
 
     case "$choice" in
-      ""|n|N|s|S) echo "- $name (skipped)"; return 0 ;;
+      ""|n|N|s|S) status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       v|V) show_file "$src" ;;
-      y|Y) mkdir -p "$(dirname "$dest")"; ln -s "$src" "$dest"; echo "✓ $name"; return 0 ;;
-      a|A) ALL_NEW=true; mkdir -p "$(dirname "$dest")"; ln -s "$src" "$dest"; echo "✓ $name"; return 0 ;;
+      y|Y)
+        mkdir -p "$(dirname "$dest")"
+        ln -s "$src" "$dest"
+        status "$GREEN" "Linked" "$name"
+        ((COUNT_LINKED++))
+        return 0
+        ;;
+      a|A)
+        ALL_NEW=true
+        mkdir -p "$(dirname "$dest")"
+        ln -s "$src" "$dest"
+        status "$GREEN" "Linked" "$name"
+        ((COUNT_LINKED++))
+        return 0
+        ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
@@ -147,9 +222,11 @@ handle_new() {
 
 setup_rc() {
   local rc="$1"
+  local name
+  name=$(basename "$rc")
   [[ -f "$rc" ]] || return 0
   if grep -q "# --- dotfiles ---" "$rc"; then
-    echo "· $rc (already configured)"
+    status "$DIM" "Exists" "$name" "(already configured)"
     return 0
   fi
 
@@ -159,22 +236,24 @@ setup_rc() {
 for f in ~/.shell.d/*.sh; do [[ -f "$f" ]] && . "$f"; done
 # --- end dotfiles ---
 EOF
-  echo "✓ Updated $rc"
+  status "$GREEN" "Updated" "$name" "(added shell.d loader)"
 }
 
 handle_broken_link() {
   local link="$1"
+  local name="${link#$HOME/}"
+  local target
+  target=$(readlink "$link")
+
   while true; do
-    echo ""
-    echo "Broken symlink: $link"
-    echo "Target: $(readlink "$link")"
-    echo "[D]elete / [s]kip / [q]uit?"
+    prompt_box "Broken: $name" "Target missing: $target" "[d]elete  [s]kip  [q]uit"
     local choice
     choice=$(read_char)
+    echo ""
 
     case "$choice" in
-      d|D) rm "$link"; echo "✓ Deleted"; return 0 ;;
-      s|S|""|n|N) echo "- Skipped"; return 0 ;;
+      d|D) rm "$link"; status "$YELLOW" "Deleted" "$name"; ((COUNT_DELETED++)); return 0 ;;
+      s|S|""|n|N) status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
@@ -195,7 +274,7 @@ classify_path() {
 
   # Normalize path (resolve .., remove trailing /)
   abs_path="$(cd "$(dirname "$abs_path")" 2>/dev/null && pwd)/$(basename "$abs_path")" || {
-    echo "Error: Cannot resolve path: $path" >&2
+    echo "${RED}Error:${RESET} Cannot resolve path: $path" >&2
     CLASSIFY_RESULT="error"
     return 1
   }
@@ -214,7 +293,7 @@ classify_path() {
     return 0
   fi
 
-  echo "Error: File must be inside $HOME or $DOTFILES_DIR: $path" >&2
+  echo "${RED}Error:${RESET} File must be inside \$HOME or dotfiles: $path" >&2
   CLASSIFY_RESULT="error"
   return 1
 }
@@ -225,7 +304,8 @@ install_file() {
 
   # Already correctly symlinked
   if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
-    echo "· $name"
+    status "$DIM" "Exists" "$name" "(already linked)"
+    ((COUNT_EXISTS++))
     return 0
   fi
 
@@ -233,7 +313,8 @@ install_file() {
   if [[ -e "$dest" || -L "$dest" ]]; then
     if diff -q "$dest" "$src" >/dev/null 2>&1; then
       ln -sfn "$src" "$dest"
-      echo "✓ $name (same content)"
+      status "$GREEN" "Linked" "$name" "(same content)"
+      ((COUNT_LINKED++))
       return 0
     fi
     handle_conflict "$src" "$dest" "$name"
@@ -252,7 +333,8 @@ adopt_file() {
 
   # Already symlinked to dotfiles
   if [[ -L "$home_file" && "$(readlink "$home_file")" == "$dotfile" ]]; then
-    echo "· $rel (already managed)"
+    status "$DIM" "Exists" "$rel" "(already managed)"
+    ((COUNT_EXISTS++))
     return 0
   fi
 
@@ -261,7 +343,8 @@ adopt_file() {
     mkdir -p "$(dirname "$dotfile")"
     mv "$home_file" "$dotfile"
     ln -s "$dotfile" "$home_file"
-    echo "✓ $rel (adopted)"
+    status "$GREEN" "Adopted" "$rel"
+    ((COUNT_ADOPTED++))
     ADOPTED_FILES+=("$rel")
     return 0
   fi
@@ -270,28 +353,28 @@ adopt_file() {
   if diff -q "$home_file" "$dotfile" >/dev/null 2>&1; then
     rm "$home_file"
     ln -s "$dotfile" "$home_file"
-    echo "✓ $rel (adopted)"
+    status "$GREEN" "Adopted" "$rel" "(same content)"
+    ((COUNT_ADOPTED++))
     ADOPTED_FILES+=("$rel")
     return 0
   fi
 
   # Conflict: home file differs from existing dotfile
   while true; do
-    echo ""
-    echo "Adopt conflict: $rel (differs from existing dotfile)"
-    echo "[N]o / [d]iff / [f]orce / [q]uit? "
+    prompt_box "Adopt conflict: $rel" "File differs from existing dotfile version" "[d]iff  [f]orce  [s]kip  [q]uit"
     local choice
     choice=$(read_char)
     echo ""
 
     case "$choice" in
-      ""|n|N|s|S) echo "- $rel (skipped)"; return 0 ;;
+      ""|n|N|s|S) status "$YELLOW" "Skipped" "$rel"; ((COUNT_SKIPPED++)); return 0 ;;
       d|D) show_diff "$home_file" "$dotfile" ;;
       f|F)
         backup_file "$dotfile" "$rel"
         mv "$home_file" "$dotfile"
         ln -s "$dotfile" "$home_file"
-        echo "✓ $rel (adopted)"
+        status "$GREEN" "Adopted" "$rel"
+        ((COUNT_ADOPTED++))
         ADOPTED_FILES+=("$rel")
         return 0
         ;;
@@ -315,14 +398,14 @@ process_file_arg() {
         local rel="${CLASSIFY_PATH#$HOME_DIR/}"
         install_file "$CLASSIFY_PATH" "$HOME/$rel" "$rel"
       else
-        echo "Error: File must be inside $HOME_DIR: $path" >&2
+        echo "${RED}Error:${RESET} File must be inside home/: $path" >&2
         return 1
       fi
       ;;
     home)
       # File inside $HOME - adopt it
       if [[ ! -f "$CLASSIFY_PATH" ]]; then
-        echo "Error: Not a file: $path" >&2
+        echo "${RED}Error:${RESET} Not a file: $path" >&2
         return 1
       fi
       adopt_file "$CLASSIFY_PATH"
@@ -331,9 +414,10 @@ process_file_arg() {
 }
 
 check_broken_links() {
-  echo "--- Checking for broken symlinks in managed directories ---"
+  local found_broken=false
+
   # Scan directories that exist in our dotfiles source
-  find . -type d | while read -r rel_dir; do
+  while IFS= read -r rel_dir; do
     rel_dir="${rel_dir#./}"
     local target_dir
     if [[ -z "$rel_dir" ]]; then
@@ -345,19 +429,21 @@ check_broken_links() {
     [[ -d "$target_dir" ]] || continue
 
     # Find broken symlinks in the target directory (non-recursive)
-    # Using a process substitution loop to handle paths safely
     while IFS= read -r link; do
       if [[ ! -e "$link" ]]; then
+        if ! $found_broken; then
+          section "Checking symlinks..."
+          found_broken=true
+        fi
         handle_broken_link "$link"
       fi
     done < <(find "$target_dir" -maxdepth 1 -type l)
-  done
-  echo "--- Done checking broken links ---"
-  echo ""
+  done < <(find . -type d)
 }
 
 # Main flow: file args or install all
 if [[ ${#FILE_ARGS[@]} -gt 0 ]]; then
+  section "Processing files..."
   # Process specific file arguments
   for arg in "${FILE_ARGS[@]}"; do
     process_file_arg "$arg"
@@ -367,20 +453,24 @@ else
   cd "$HOME_DIR"
   check_broken_links
 
-  find . -type f | sort | while read -r file; do
+  section "Installing dotfiles..."
+  # Use a for loop to avoid subshell (preserves counters)
+  while IFS= read -r file; do
     file="${file#./}"
     install_file "$PWD/$file" ~/"$file" "$file"
-  done
+  done < <(find . -type f | sort)
 
-  echo ""
+  section "Shell configuration..."
   setup_rc ~/.bashrc
   setup_rc ~/.zshrc
 fi
 
+# Show summary
+summary
+
 # Git reminder if files were adopted
 if [[ ${#ADOPTED_FILES[@]} -gt 0 ]]; then
   echo ""
-  echo "Adopted ${#ADOPTED_FILES[@]} file(s) into dotfiles."
-  echo "Remember to commit:"
+  echo "${YELLOW}Reminder:${RESET} Adopted files need to be committed:"
   echo "  cd $DOTFILES_DIR && git add -A && git commit"
 fi
