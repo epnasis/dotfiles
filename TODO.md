@@ -24,11 +24,10 @@ if [[ $- == *i* ]] && [[ -z "$TMUX" ]]; then  # missing check for SSH - inconsis
 fi
 ```
 
-1. Enhance install.sh to support files arugment - multiple files or any glob pattern. It has different effect depending on file location:
+1. Dangling symlinks detection improvement
 
-- If files are from dotfiles path (its directory or subdirs) then install dotfiles as if all-yes options - install but handle conflicts.
-- If outside of dotfiles but inside $HOME path then add these files to dotfiles by moving files with path relative to home to dotfiles/home and installing it to create symlink so that as of that moment dotfile is used via symlink. When successful add reminder to add & commit changes to git repo (brief)
-- Check dangling sym links for files that were removed Basic solution is to look in shell.d dirextory but maybe there is smarter way that is also good performance?
+- Current: checks broken links in directories that exist in dotfiles/home
+- Idea: smarter detection that's also performant - maybe scan shell.d specifically?
 
 1. Install supports packages installation
 

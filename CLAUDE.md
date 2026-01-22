@@ -203,11 +203,28 @@ cd ~/dotfiles
 
 # Non-interactive - install all files without prompts
 ./install.sh --all
+
+# Install specific dotfile(s)
+./install.sh home/.vimrc home/.tmux.conf
+
+# Adopt existing file into dotfiles (move + symlink)
+./install.sh ~/.config/app/config.yaml
 ```
 
 The script will:
 1. Symlink files from `home/` to `~/` (including `.zshrc`)
 2. For `.bashrc`: append shell.d sourcing block if not present (fallback for non-symlinked setups)
+
+### File Arguments
+
+When given file arguments, behavior depends on location:
+
+| File Location | Action |
+|---------------|--------|
+| Inside `dotfiles/` | Install that file (create symlink to $HOME) |
+| Inside `$HOME` | Adopt: move to `dotfiles/home/`, create symlink back |
+
+After adopting files, a reminder prompts to commit the changes.
 
 **Symbols:** `✓` installed, `·` already linked, `-` skipped
 
