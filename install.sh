@@ -161,20 +161,20 @@ backup_file() {
 handle_conflict() {
   local src="$1" dest="$2" name="$3"
 
+  prompt_box "Conflict: $name" "Existing file differs from dotfiles version" "[d]iff  [f]orce  [s]kip  [q]uit"
+
   while true; do
-    prompt_box "Conflict: $name" "Existing file differs from dotfiles version" "[d]iff  [f]orce  [s]kip  [q]uit"
     local choice
     choice=$(read_char)
-    echo ""
-
     case "$choice" in
-      ""|n|N|s|S) status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       d|D) show_diff "$dest" "$src" ;;
       f|F)
+        echo ""
         backup_file "$dest" "$name"
         ln -sfn "$src" "$dest"
         status "$GREEN" "Forced" "$name"; ((COUNT_FORCED++)); return 0
         ;;
+      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
@@ -191,16 +191,15 @@ handle_new() {
     return 0
   fi
 
+  prompt_box "Install: $name" "New file, not yet in your home directory" "[y]es  [n]o  [v]iew  [a]ll  [q]uit"
+
   while true; do
-    prompt_box "Install: $name" "New file, not yet in your home directory" "[y]es  [n]o  [v]iew  [a]ll  [q]uit"
     local choice
     choice=$(read_char)
-    echo ""
-
     case "$choice" in
-      ""|n|N|s|S) status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       v|V) show_file "$src" ;;
       y|Y)
+        echo ""
         mkdir -p "$(dirname "$dest")"
         ln -s "$src" "$dest"
         status "$GREEN" "Linked" "$name"
@@ -208,6 +207,7 @@ handle_new() {
         return 0
         ;;
       a|A)
+        echo ""
         ALL_NEW=true
         mkdir -p "$(dirname "$dest")"
         ln -s "$src" "$dest"
@@ -215,6 +215,7 @@ handle_new() {
         ((COUNT_LINKED++))
         return 0
         ;;
+      ""|n|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
@@ -245,15 +246,14 @@ handle_broken_link() {
   local target
   target=$(readlink "$link")
 
+  prompt_box "Broken: $name" "Target missing: $target" "[d]elete  [s]kip  [q]uit"
+
   while true; do
-    prompt_box "Broken: $name" "Target missing: $target" "[d]elete  [s]kip  [q]uit"
     local choice
     choice=$(read_char)
-    echo ""
-
     case "$choice" in
-      d|D) rm "$link"; status "$YELLOW" "Deleted" "$name"; ((COUNT_DELETED++)); return 0 ;;
-      s|S|""|n|N) status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
+      d|D) echo ""; rm "$link"; status "$YELLOW" "Deleted" "$name"; ((COUNT_DELETED++)); return 0 ;;
+      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
@@ -360,16 +360,15 @@ adopt_file() {
   fi
 
   # Conflict: home file differs from existing dotfile
+  prompt_box "Adopt conflict: $rel" "File differs from existing dotfile version" "[d]iff  [f]orce  [s]kip  [q]uit"
+
   while true; do
-    prompt_box "Adopt conflict: $rel" "File differs from existing dotfile version" "[d]iff  [f]orce  [s]kip  [q]uit"
     local choice
     choice=$(read_char)
-    echo ""
-
     case "$choice" in
-      ""|n|N|s|S) status "$YELLOW" "Skipped" "$rel"; ((COUNT_SKIPPED++)); return 0 ;;
       d|D) show_diff "$home_file" "$dotfile" ;;
       f|F)
+        echo ""
         backup_file "$dotfile" "$rel"
         mv "$home_file" "$dotfile"
         ln -s "$dotfile" "$home_file"
@@ -378,6 +377,7 @@ adopt_file() {
         ADOPTED_FILES+=("$rel")
         return 0
         ;;
+      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$rel"; ((COUNT_SKIPPED++)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
