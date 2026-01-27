@@ -99,11 +99,10 @@ Personal dotfiles repository for macOS and Linux (Debian/Fedora) with modular sh
 │       ├── 10-env.sh       # EDITOR, LANG (conditional nvim/vim)
 │       ├── 20-path.sh      # PATH modifications
 │       ├── 30-history.sh   # History settings (bash/zsh)
-│       ├── 40-aliases.sh   # General aliases
-│       ├── 45-fzf.sh       # FZF config + fp() function
+│       ├── 48-zoxide.sh    # Zoxide init (j/ji commands, bash/zsh)
 │       ├── 50-bash.sh      # Bash-specific settings
 │       ├── 50-zsh.sh       # Zsh-specific settings
-│       ├── 55-oh-my-zsh.sh # Oh-my-zsh setup (optimized, optional)
+│       ├── 55-antidote.sh  # Antidote zsh plugin manager (zsh-only)
 │       ├── 60-git.sh       # Git aliases + ginit, ghc functions
 │       ├── 65-linux.sh     # Linux-specific settings
 │       ├── 65-macos.sh     # macOS-specific settings
@@ -111,9 +110,10 @@ Personal dotfiles repository for macOS and Linux (Debian/Fedora) with modular sh
 │       ├── 70-1password.sh # 1Password CLI + SSH agent
 │       ├── 75-sops.sh      # SOPS/AGE: genc, enc, genc_hook
 │       ├── 80-safe-rm.sh   # Safe rm wrapper (trash)
-│       ├── 85-completions.sh
-│       ├── 90-starship.sh  # Starship prompt init
-│       ├── 95-gemini.sh    # Gemini CLI helper
+│       ├── 85-completions.sh # HashiCorp tools (bashcompinit for zsh)
+│       ├── 89-fzf.sh       # FZF config + fp() function
+│       ├── 90-aliases.sh   # General aliases
+│       ├── 92-starship.sh  # Starship prompt init
 │       └── 99-tmux-ssh.sh  # Auto-start tmux on SSH
 ├── zsh/
 │   └── catppuccin_mocha-zsh-syntax-highlighting.zsh
@@ -125,6 +125,8 @@ Personal dotfiles repository for macOS and Linux (Debian/Fedora) with modular sh
 
 | Command        | Purpose                                                            |
 | -------------- | ------------------------------------------------------------------ |
+| `j <query>`    | Zoxide smart cd (jump to frecent directory)                        |
+| `ji <query>`   | Zoxide interactive directory picker                                |
 | `fp`           | Find git projects recursively with fzf, cd to selected             |
 | `gs`           | Alias for `git status`                                             |
 | `ginit [name]` | Initialize git repo + create private GitHub repo via `gh`          |
