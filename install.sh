@@ -130,18 +130,20 @@ show_file() {
 
 show_diff() {
   local file1="$1" file2="$2"
-  
+
   if command -v realpath >/dev/null; then
     file1=$(realpath "$file1")
     file2=$(realpath "$file2")
   fi
 
-  echo ""
-  if command -v git >/dev/null; then
-    git diff --no-index --color-words "$file1" "$file2" || true
-  else
-    diff -u "$file1" "$file2" || true
-  fi
+  # Pipe through pager for alternate screen (returns to prompt on exit)
+  {
+    if command -v git >/dev/null; then
+      git diff --no-index --color "$file1" "$file2" || true
+    else
+      diff -u "$file1" "$file2" || true
+    fi
+  } | if command -v less >/dev/null; then less -R; else cat; fi
 }
 
 BACKUP_DIR="$DOTFILES_DIR/backups"
@@ -197,34 +199,26 @@ handle_new() {
     local choice
     choice=$(read_char)
     case "$choice" in
-      v|V) show_file "$src" ;;
-      y|Y)
-        echo ""
-        mkdir -p "$(dirname "$dest")"
-        ln -s "$src" "$dest"
-        status "$GREEN" "Linked" "$name"
-        ((COUNT_LINKED++))
-        return 0
-        ;;
-      a|A)
-        echo ""
-        ALL_NEW=true
-        mkdir -p "$(dirname "$dest")"
-        ln -s "$src" "$dest"
-        status "$GREEN" "Linked" "$name"
-        ((COUNT_LINKED++))
-        return 0
-        ;;
+      v|V) show_file "$src"; continue ;;
+      a|A) ALL_NEW=true ;;
+      y|Y) ;;
       ""|n|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
+      *) continue ;;
     esac
+    # Reached here means y|Y or a|A - do the link
+    echo ""
+    mkdir -p "$(dirname "$dest")"
+    ln -s "$src" "$dest"
+    status "$GREEN" "Linked" "$name"
+    ((COUNT_LINKED++))
+    return 0
   done
 }
 
 setup_rc() {
   local rc="$1"
-  local name
-  name=$(basename "$rc")
+  local name="${rc##*/}"  # basename without subshell
   [[ -f "$rc" ]] || return 0
   if grep -q "# --- dotfiles ---" "$rc"; then
     status "$DIM" "Exists" "$name" "(already configured)"
@@ -414,31 +408,31 @@ process_file_arg() {
 }
 
 check_broken_links() {
-  local found_broken=false
+  local broken_links=()
+  local dirs_to_check=()
 
-  # Scan directories that exist in our dotfiles source
+  # Build list of $HOME directories that mirror our dotfiles structure
   while IFS= read -r rel_dir; do
     rel_dir="${rel_dir#./}"
-    local target_dir
-    if [[ -z "$rel_dir" ]]; then
-      target_dir="$HOME"
-    else
-      target_dir="$HOME/$rel_dir"
-    fi
-
-    [[ -d "$target_dir" ]] || continue
-
-    # Find broken symlinks in the target directory (non-recursive)
-    while IFS= read -r link; do
-      if [[ ! -e "$link" ]]; then
-        if ! $found_broken; then
-          section "Checking symlinks..."
-          found_broken=true
-        fi
-        handle_broken_link "$link"
-      fi
-    done < <(find "$target_dir" -maxdepth 1 -type l)
+    local target_dir="${rel_dir:+$HOME/$rel_dir}"
+    target_dir="${target_dir:-$HOME}"
+    [[ -d "$target_dir" ]] && dirs_to_check+=("$target_dir")
   done < <(find . -type d)
+
+  # Single find call across all directories (much faster than N separate calls)
+  if [[ ${#dirs_to_check[@]} -gt 0 ]]; then
+    while IFS= read -r link; do
+      [[ ! -e "$link" ]] && broken_links+=("$link")
+    done < <(find "${dirs_to_check[@]}" -maxdepth 1 -type l 2>/dev/null)
+  fi
+
+  # Process interactively with for loop (avoids stdin conflicts)
+  if [[ ${#broken_links[@]} -gt 0 ]]; then
+    section "Checking symlinks..."
+    for link in "${broken_links[@]}"; do
+      handle_broken_link "$link"
+    done
+  fi
 }
 
 # Main flow: file args or install all
@@ -454,11 +448,15 @@ else
   check_broken_links
 
   section "Installing dotfiles..."
-  # Use a for loop to avoid subshell (preserves counters)
+  # Collect files first, then process with for loop (avoids stdin conflicts with interactive prompts)
+  files=()
   while IFS= read -r file; do
-    file="${file#./}"
-    install_file "$PWD/$file" ~/"$file" "$file"
+    files+=("${file#./}")
   done < <(find . -type f | sort)
+
+  for file in "${files[@]}"; do
+    install_file "$PWD/$file" ~/"$file" "$file"
+  done
 
   section "Shell configuration..."
   setup_rc ~/.bashrc
