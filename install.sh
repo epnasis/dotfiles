@@ -174,9 +174,9 @@ handle_conflict() {
         echo ""
         backup_file "$dest" "$name"
         ln -sfn "$src" "$dest"
-        status "$GREEN" "Forced" "$name"; ((COUNT_FORCED++)); return 0
+        status "$GREEN" "Forced" "$name"; ((++COUNT_FORCED)); return 0
         ;;
-      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
+      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((++COUNT_SKIPPED)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
@@ -189,7 +189,7 @@ handle_new() {
     mkdir -p "$(dirname "$dest")"
     ln -s "$src" "$dest"
     status "$GREEN" "Linked" "$name"
-    ((COUNT_LINKED++))
+    ((++COUNT_LINKED))
     return 0
   fi
 
@@ -202,7 +202,7 @@ handle_new() {
       v|V) show_file "$src"; continue ;;
       a|A) ALL_NEW=true ;;
       y|Y) ;;
-      ""|n|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
+      ""|n|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((++COUNT_SKIPPED)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
       *) continue ;;
     esac
@@ -211,7 +211,7 @@ handle_new() {
     mkdir -p "$(dirname "$dest")"
     ln -s "$src" "$dest"
     status "$GREEN" "Linked" "$name"
-    ((COUNT_LINKED++))
+    ((++COUNT_LINKED))
     return 0
   done
 }
@@ -246,8 +246,8 @@ handle_broken_link() {
     local choice
     choice=$(read_char)
     case "$choice" in
-      d|D) echo ""; rm "$link"; status "$YELLOW" "Deleted" "$name"; ((COUNT_DELETED++)); return 0 ;;
-      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((COUNT_SKIPPED++)); return 0 ;;
+      d|D) echo ""; rm "$link"; status "$YELLOW" "Deleted" "$name"; ((++COUNT_DELETED)); return 0 ;;
+      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$name"; ((++COUNT_SKIPPED)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
@@ -299,7 +299,7 @@ install_file() {
   # Already correctly symlinked
   if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
     status "$DIM" "Exists" "$name" "(already linked)"
-    ((COUNT_EXISTS++))
+    ((++COUNT_EXISTS))
     return 0
   fi
 
@@ -308,7 +308,7 @@ install_file() {
     if diff -q "$dest" "$src" >/dev/null 2>&1; then
       ln -sfn "$src" "$dest"
       status "$GREEN" "Linked" "$name" "(same content)"
-      ((COUNT_LINKED++))
+      ((++COUNT_LINKED))
       return 0
     fi
     handle_conflict "$src" "$dest" "$name"
@@ -328,7 +328,7 @@ adopt_file() {
   # Already symlinked to dotfiles
   if [[ -L "$home_file" && "$(readlink "$home_file")" == "$dotfile" ]]; then
     status "$DIM" "Exists" "$rel" "(already managed)"
-    ((COUNT_EXISTS++))
+    ((++COUNT_EXISTS))
     return 0
   fi
 
@@ -338,7 +338,7 @@ adopt_file() {
     mv "$home_file" "$dotfile"
     ln -s "$dotfile" "$home_file"
     status "$GREEN" "Adopted" "$rel"
-    ((COUNT_ADOPTED++))
+    ((++COUNT_ADOPTED))
     ADOPTED_FILES+=("$rel")
     return 0
   fi
@@ -348,7 +348,7 @@ adopt_file() {
     rm "$home_file"
     ln -s "$dotfile" "$home_file"
     status "$GREEN" "Adopted" "$rel" "(same content)"
-    ((COUNT_ADOPTED++))
+    ((++COUNT_ADOPTED))
     ADOPTED_FILES+=("$rel")
     return 0
   fi
@@ -367,11 +367,11 @@ adopt_file() {
         mv "$home_file" "$dotfile"
         ln -s "$dotfile" "$home_file"
         status "$GREEN" "Adopted" "$rel"
-        ((COUNT_ADOPTED++))
+        ((++COUNT_ADOPTED))
         ADOPTED_FILES+=("$rel")
         return 0
         ;;
-      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$rel"; ((COUNT_SKIPPED++)); return 0 ;;
+      ""|s|S) echo ""; status "$YELLOW" "Skipped" "$rel"; ((++COUNT_SKIPPED)); return 0 ;;
       q|Q) echo "Quit."; exit 1 ;;
     esac
   done
