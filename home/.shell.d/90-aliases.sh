@@ -7,6 +7,7 @@ fi
 
 alias lg='lazygit'
 alias rr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
+lf() { cd "$(command lf -print-last-dir "$@")" }
 
 if command -v eza >/dev/null 2>&1; then
 	alias l='eza -F --icons=auto --group-directories-first'
