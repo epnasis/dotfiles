@@ -14,6 +14,10 @@ export FZF_DEFAULT_OPTS=" \
 [[ -n "$ZSH_VERSION" ]] && source <(fzf --zsh)
 [[ -n "$BASH_VERSION" ]] && source <(fzf --bash)
 
+# Remove the fzf Alt-c binding to fix the Esc delay
+bindkey -r '\ec'
+bindkey -r '^[c'
+
 # Find git projects recursively and cd to selected one
 fp() {
     command -v fd >/dev/null || { echo "fd not installed"; return 1; }
