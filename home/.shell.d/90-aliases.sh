@@ -6,9 +6,9 @@ if command -v nvim >/dev/null 2>&1; then
 fi
 
 alias lg='lazygit'
-alias rr='ranger --choosedir=$HOME/.rangerdir; LASTDIR=`cat $HOME/.rangerdir`; cd "$LASTDIR"'
-alias jj='yazi --cwd-file=$HOME/.yazidir; LASTDIR=`cat $HOME/.yazidir`; cd "$LASTDIR"'
-lf() { cd "$(command lf -print-last-dir "$@")" }
+rr() { ranger --choosedir="$HOME/.rangerdir"; cd "$(cat "$HOME/.rangerdir")"; }
+jj() { yazi --cwd-file="$HOME/.yazidir"; cd "$(cat "$HOME/.yazidir")"; }
+lf() { cd "$(command lf -print-last-dir "$@")"; }
 
 if command -v eza >/dev/null 2>&1; then
 	alias l='eza -F --icons=auto --group-directories-first'
@@ -54,3 +54,27 @@ if command -v gemini >/dev/null; then
 		gemini "$@"
 	}
 fi
+
+# Claude Code helper
+if command -v claude >/dev/null; then
+	unalias cl 2>/dev/null
+	function cl {
+		if [[ "$PWD" == "$HOME" && "$#" -eq 0 ]]; then
+			local claude_dir="$HOME/claude"
+			if [[ ! -d "$claude_dir" ]]; then
+				printf "Directory %s does not exist. Create it? [y/N] " "$claude_dir"
+				local response
+				read -r response
+				if [[ "$response" =~ ^[Yy] ]]; then
+					mkdir -p "$claude_dir"
+				fi
+			fi
+
+			if [[ -d "$claude_dir" ]]; then
+				cd "$claude_dir" || return
+			fi
+		fi
+		claude "$@"
+	}
+fi
+
