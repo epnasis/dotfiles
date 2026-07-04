@@ -19,9 +19,10 @@ cmd="${3:-}"
 
 # Only summarize titles from coding agents; other title-setters (yazi, shells)
 # should keep tmux's automatic-rename name instead. Claude Code's process name
-# is its bare version number, e.g. "2.1.201".
+# is its bare version number, e.g. "2.1.201". docker/podman cover containerized
+# agents (the cld sandbox function).
 case "$cmd" in
-  claude|agy|codex|node) ;;
+  claude|agy|codex|node|docker|podman) ;;
   *) printf '%s' "$cmd" | grep -Eq '^[0-9]+(\.[0-9]+)*$' || exit 0 ;;
 esac
 
