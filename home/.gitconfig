@@ -23,6 +23,9 @@
 
 [pull]
   rebase = true
+	ff = only
 
 [include]
   path = ~/.gitconfig.local
+[merge]
+	ff = only
