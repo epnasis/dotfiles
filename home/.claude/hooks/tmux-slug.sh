@@ -30,21 +30,28 @@ esac
 text=$(printf '%s' "$title" | sed -E 's/^[^a-zA-Z0-9]+//')
 [ "${#text}" -lt 15 ] && exit 0
 
-# Writing the cache before the Haiku call also dedupes concurrent firings
+# The cache records a COMPLETED naming: the title text and the slug the window
+# actually carries. tmux-session-title.sh reads it to decide whether a window
+# name was derived from the session asking, so it must never claim a name the
+# rename below has not applied yet — hence the separate in-flight marker rather
+# than writing the cache up front.
 cache_dir="$HOME/.cache/tmux-slug"
 mkdir -p "$cache_dir"
+find "$cache_dir" -name '*.pending' -mmin +10 -delete 2>/dev/null || true
 cache="$cache_dir/${window#@}"
-[ -f "$cache" ] && [ "$(cat "$cache")" = "$text" ] && exit 0
-printf '%s' "$text" > "$cache"
+pending="$cache.pending"
+[ -f "$cache" ] && [ "$(head -n 1 "$cache")" = "$text" ] && exit 0
+[ -f "$pending" ] && [ "$(cat "$pending")" = "$text" ] && exit 0
+printf '%s' "$text" > "$pending"
 
 slug=$(claude -p --model haiku \
   "Summarize this coding task as a tmux window name: a single lowercase slug, max 12 characters, only a-z 0-9 and dashes. Reply with the slug only, nothing else. Task: ${text:0:300}" \
   2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | cut -c1-12) || true
 
+# claude failing (offline, auth, ...) leaves the last completed naming in place
+# and clears the marker, so the next title change retries
 if [ -n "$slug" ]; then
   tmux rename-window -t "$window" "$slug"
-else
-  # claude failed (offline, auth, ...): drop the cache entry so the next
-  # title change retries instead of being deduped away
-  rm -f "$cache"
+  printf '%s\n%s\n' "$text" "$slug" > "$cache.tmp" && mv -f "$cache.tmp" "$cache"
 fi
+rm -f "$pending"
