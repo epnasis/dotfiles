@@ -4,3 +4,12 @@
 *.swo
 .DS_Store
 backups/
+
+# This repo is PUBLIC. ~/.claude holds conversation transcripts, prompt
+# history, and settings that accrue credentials and internal hostnames over
+# time — none of it belongs here, and git history makes a mistake permanent.
+# Only the hook scripts are shared, so deny the tree and re-allow those.
+home/.claude/*
+!home/.claude/hooks/
+home/.claude/hooks/*
+!home/.claude/hooks/*.sh
