@@ -1,0 +1,57 @@
+# ==============================================================================
+# Typography & Theme
+# ==============================================================================
+theme = "Catppuccin Mocha"
+font-family = PragmataPro Mono Liga
+font-size = 14
+font-thicken = true
+
+# ==============================================================================
+# Window & Platform (macOS)
+# ==============================================================================
+macos-option-as-alt = left
+window-padding-x = 10
+window-padding-y = 8
+window-padding-balance = true
+confirm-close-surface = false
+
+# ==============================================================================
+# Clipboard & Mouse
+# ==============================================================================
+copy-on-select = clipboard
+clipboard-read = ask
+clipboard-write = allow
+mouse-hide-while-typing = true
+
+# ==============================================================================
+# Shell Integration
+# ==============================================================================
+shell-integration = detect
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
+
+# ==============================================================================
+# Splits (Appearance & Navigation)
+# ==============================================================================
+split-divider-color = #89b4fa
+unfocused-split-opacity = 0.5
+
+keybind = cmd+h=goto_split:left
+keybind = cmd+j=goto_split:down
+keybind = cmd+k=goto_split:up
+keybind = cmd+l=goto_split:right
+
+# ==============================================================================
+# Quake / Quick Terminal
+# ==============================================================================
+keybind = global:cmd+shift+semicolon=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-size = 40%
+quick-terminal-screen = main
+quick-terminal-autohide = true
+quick-terminal-animation-duration = 0.15
+quick-terminal-space-behavior = move
+
+# ==============================================================================
+# Custom Keybindings
+# ==============================================================================
+keybind = cmd+r=clear_screen
