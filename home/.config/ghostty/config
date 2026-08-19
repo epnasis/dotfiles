@@ -10,6 +10,10 @@ font-thicken = true
 # Window & Platform (macOS)
 # ==============================================================================
 macos-option-as-alt = left
+macos-non-native-fullscreen = true
+macos-window-buttons = hidden
+macos-titlebar-style = transparent
+macos-titlebar-proxy-icon = hidden
 window-padding-x = 10
 window-padding-y = 8
 window-padding-balance = true
@@ -19,7 +23,7 @@ confirm-close-surface = false
 # Clipboard & Mouse
 # ==============================================================================
 copy-on-select = clipboard
-clipboard-read = ask
+clipboard-read = allow
 clipboard-write = allow
 mouse-hide-while-typing = true
 
@@ -35,10 +39,10 @@ shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo,path
 split-divider-color = #89b4fa
 unfocused-split-opacity = 0.5
 
-keybind = cmd+h=goto_split:left
-keybind = cmd+j=goto_split:down
-keybind = cmd+k=goto_split:up
-keybind = cmd+l=goto_split:right
+keybind = cmd+shift+h=goto_split:left
+keybind = cmd+shift+j=goto_split:down
+keybind = cmd+shift+k=goto_split:up
+keybind = cmd+shift+l=goto_split:right
 
 # ==============================================================================
 # Quake / Quick Terminal
@@ -52,6 +56,17 @@ quick-terminal-animation-duration = 0.15
 quick-terminal-space-behavior = move
 
 # ==============================================================================
+# Notifications
+# ==============================================================================
+notify-on-command-finish = unfocused
+notify-on-command-finish-after = 10s
+notify-on-command-finish-action = notify,bell
+desktop-notifications = true
+
+# ==============================================================================
 # Custom Keybindings
 # ==============================================================================
 keybind = cmd+r=clear_screen
+keybind = cmd+k=jump_to_prompt:-1
+keybind = cmd+j=jump_to_prompt:1
+keybind = cmd+shift+y=write_scrollback_file:open,plain

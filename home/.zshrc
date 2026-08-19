@@ -5,4 +5,4 @@ for f in ~/.shell.d/*.sh; do [[ -f "$f" ]] && . "$f"; done
 # Machine-specific config (not in dotfiles)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
-. "$HOME/.local/bin/env"
+[[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
